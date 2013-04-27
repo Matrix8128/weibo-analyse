@@ -9,7 +9,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
   <head>
     <base href="<%=basePath%>">
     
-    <title>My JSP 'index.jsp' starting page</title>
+    <title>weibo-analyse</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 <!-- 需要导入的lib -->
@@ -40,11 +40,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					<option value=3>3</option>
 					<option value=4>4</option>
 			</select></li> -->
-			<li><span>展示类型</span> </select> <select id="types">
+			<li><span>展示类型</span> </select> <select id="type">
 					<option value="relation">纯关系</option>
 					<option value="intimacy">亲密用户</option>
 					<option value="interest">兴趣图谱</option>
-					<option value="interest">相似用户</option>
+					<option value="similarity">相似用户</option>
 
 					
 			</select></li>

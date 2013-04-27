@@ -45,9 +45,8 @@ Visualization = function(info,workplace, canvasId) {
 				alert("can't be blank");
 			} else {
 				username = $('#username').val()
-				levels = $("#levels").val()
-				types = $("#types").val()
-	 			dataHandler.getUser(username,1,'temp',function(data){
+				type = $("#type").val()
+	 			dataHandler.getUser(username,type,function(data){
 					that.handleData(data)
 					that.resize()
 				}) 

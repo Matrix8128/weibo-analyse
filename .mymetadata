@@ -2,7 +2,7 @@
 <project-module
   type="WEB"
   name="weibo-analyse"
-  id="myeclipse.1366982739395"
+  id="myeclipse.1367064761815"
   context-root="/weibo-analyse"
   j2ee-spec="6.0"
   archive="weibo-analyse.war">

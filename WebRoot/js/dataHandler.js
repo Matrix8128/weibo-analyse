@@ -4,13 +4,19 @@
 			
 		
 		this.errorHandler=function(data) {
+			
+			
 			if (data.hasOwnProperty("error")) {
 				alert(data.error)
 				return false
 			}
-			return true
+			for(d in data){//return true if there is something in data
+				return true
+			}
+			alert("nothing in data")
+			return false
 		},
-		this.getUser=function(name,Levels,Types,successCallback){
+		this.getUser=function(name,Type,successCallback){
 			
 			$
 					.ajax({
@@ -20,8 +26,7 @@
 						contentType : "application/json;charset=utf-8",
 						data : {
 							username : name,
-							levels : Levels,
-							types : Types,
+							dataType : Type,
 						},
 						beforeSend : function() {
 							$("#ajaxtip").html(
