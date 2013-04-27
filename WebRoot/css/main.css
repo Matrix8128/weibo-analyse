@@ -1,0 +1,106 @@
+html {
+	width: 100%;
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	background: #665;
+}
+
+#workplace { /*  float:left;*/
+	position: fixed;
+	top: 60px;
+	left: 10px;
+	right: 280px;
+	bottom: 10px;
+	padding: 0 10px;
+	background: white;
+	/*  border-radius:4px; */
+	z-index: 1;
+
+}
+
+#viewport {
+	background: white;
+}
+
+#editor {
+	position: fixed;
+	top: 60px;
+	right: 10px;
+	width: 260px;
+	bottom: 10px;
+	padding: 0 3px;
+	/* background:#fffff3;*/
+	background: #fffff0;
+	/* border-radius:4px; */
+
+}
+
+#editor .info {
+	position: relative;
+	display: block;
+	width: 100%;
+	min-width: 240px;
+	height: 100%;
+	border: 0;
+	padding: 0 0 0 2px;
+	margin: 0;
+	resize: none;
+	z-index: 2;
+}
+
+#editor .info li {
+	font: 12px/32px Arial;
+	 list-style-type: none;
+	margin: 6px 30px 0 0;
+}
+
+#editor .info li span {
+	font: 16px Arial;
+	font-weight: bold;
+	margin-left: 4px;
+}
+
+.io {
+	margin-left: -3px;
+	padding: 0 3px;
+	font: 15px/25px Arial, sans-serif;
+	color: red;
+	text-align: center;
+	height: 25px;
+	width: 100%;
+	background: #999;
+	overflow: hidden;
+}
+
+#dashboard {
+	position: fixed;
+	height: 50px;
+	top: 10px;
+	left: 10px;
+	right: 10px;
+	background: #eeeee2 url(halfviz.png) 10px 8px no-repeat;
+	/* border-radius:4px; */
+	padding: 0;
+}
+
+#dashboard .controls { /*  float:left;*/
+	font: 12px/32px Arial;
+	margin: 0 0 0 120px;
+}
+
+#dashboard .controls li {
+	list-style-type: none;
+	float: left;
+	margin: 6px 30px 0 0;
+}
+
+#dashboard .controls li span {
+	font: 16px Arial;
+	font-weight: bold;
+	margin-left: 4px;
+}
