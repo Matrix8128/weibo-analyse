@@ -27,9 +27,9 @@ import java.util.regex.*;
  import java.util.PriorityQueue;*/
 
 public class SingleUserAnalyse {
-
-	// String access_token = "2.00N8EaxB08LsGa4ebcc4e9ac0YYqxw";
-	String access_token = "2.008w7_4DmapluDdf171919f00qPD39";
+	// String access_token ="2.00prQs_CixbFRE1a4bbda7e90jsdM8";
+	 String access_token = "2.00N8EaxB08LsGa4ebcc4e9ac0YYqxw";
+	//String access_token = "2.008w7_4DmapluDdf171919f00qPD39";
 	/*
 	 * String id = "1796533527"; String name = "胡新辰点点点";
 	 */
@@ -38,7 +38,7 @@ public class SingleUserAnalyse {
 
 	JSONObject json = new JSONObject();
 
-	JSONObject friendsJson = new JSONObject();
+	JSONObject friendsJson = null;
 	// 中心用户
 	User centreUser = null;
 	String userId = null;
@@ -53,7 +53,7 @@ public class SingleUserAnalyse {
 	UserWapper uniFriends = null;
 	JSONArray uniFriendArray = new JSONArray();
 	// 转发用户微博的人
-	int topRtStatusNum = 5;// 取转发数最多的topK条微博
+	int topRtStatusNum = 20;// 取转发数最多的topK条微博
 	int topRtUserNum = 20;// 去转发数最多的topK用户数
 	int rtUserNum = 0;
 	JSONArray rtUserArray = new JSONArray();
@@ -61,7 +61,7 @@ public class SingleUserAnalyse {
 	ArrayList<UserCount> rtUserList = null;
 	int totalRtCount = 0;// rtUserList 中用户的总评论数，用户相似度归一化计算。
 	// 评论微博用户的人
-	int topComStatusNum = 10;// 取评论数最多的topK条微博
+	int topComStatusNum = 20;// 取评论数最多的topK条微博
 	int topComUserNum = 20;// 去评论数最多的topK用户数
 	int comUserNum = 0;
 	JSONArray comUserArray = new JSONArray();
@@ -95,7 +95,7 @@ public class SingleUserAnalyse {
 	// 用户最新发布微博列表id
 	JSONObject userTimelineIds = null;
 	// 用户发布的微博列表
-	int needStatusNum = 100;// 需要获得微博数量
+	int needStatusNum = 300;// 需要获得微博数量
 	StatusWapper status = null;
 	// 按评论数量排序（降序）的微博列表
 	PriorityQueue<Status> comQueue = null;
@@ -215,7 +215,9 @@ public class SingleUserAnalyse {
 			if (centreUser == null) {
 				getCentreUser();
 			}
+			friendsJson=new JSONObject();
 			friendsJson.put("id", centreUser.getId());
+			friendsJson.put("name", centreUser.getScreenName());
 			userId = centreUser.getId();
 			friendsJson.put("head", centreUser.getProfileImageURL());
 			// get all biFriend ids
@@ -251,7 +253,7 @@ public class SingleUserAnalyse {
 						member.put("head", u.getProfileImageURL()); //
 						uniFriendArray.put(member);
 					}
-					System.out.println(incaseNum + ":" + u.getScreenName());
+					//System.out.println(incaseNum + ":" + u.getScreenName());
 				}
 				cursor = (int) users.getNextCursor();
 				if (cursor == 0 || incaseNum > MAX) {
@@ -526,6 +528,8 @@ public class SingleUserAnalyse {
 					}
 				}
 			}
+			// 去掉中心用户
+			map.remove(centreUser.getId());
 			// 将转发者按转发次数排序
 			SortedUserQueue.clear();
 			SortedUserQueue.addAll(map.values());
@@ -616,6 +620,8 @@ public class SingleUserAnalyse {
 				}
 			}
 
+			// 去掉中心用户
+			map.remove(centreUser.getScreenName());
 			SortedUserQueue.clear();
 			SortedUserQueue.addAll(map.values());
 
@@ -807,6 +813,8 @@ public class SingleUserAnalyse {
 			assert checkComCount == totalComCount : "in getIntimateUsers: wrong with totalComCount";
 			assert checkRepliedCount == totalRepliedCount : "in getIntimateUsers: wrong with totalRepliedCount";
 			assert checkRtAuthorCount == totalRtAuthorCount : "in getIntimateUsers: wrong with totalRtAuthorCount";
+			intimateUsers.put("id", this.centreUser.getId());
+			intimateUsers.put("name", this.centreUser.getScreenName());
 			intimateUsers.put("num", num);
 			intimateUsers.put("totalRtCount", totalRtCount);
 			intimateUsers.put("totalComCount", totalComCount);

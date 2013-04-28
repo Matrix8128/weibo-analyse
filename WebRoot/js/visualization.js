@@ -60,26 +60,82 @@ Visualization = function(info,workplace, canvasId) {
 			sys.screenSize(w, h)
 			sys.renderer.redraw()
 		},
+		
 		handleData	:	function(data){
 			
-			//edgeColor="rgba(255,255,255,.5)"
-			nodesData={}
-			edgesData={}
-			nodesData[data.id]={mass:6,fixed:true,color:"red",type:"centre",screenName:data.name
+			var result={nodes:{},edges:{}}
+			
+			sys.merge(result)//clear
+			//forTest=data	
+			if(data.dataType=="relation"){
+				result=that.handleRelationData(data)
+			}else if(data.dataType=="intimacy"){
+				result=that.handleIntimacyData(data)
+			}else{
+				alert("wrong dataType:"+data.dataType)
+				return
+			}
+			
+			sys.merge(result)
+		},
+		handleRelationData: function(data){
+			sys.parameters({stiffness:2000, repulsion:6000, gravity:true, dt:0.015,friction:0.3})
+			var nodesData={}
+			var edgesData={}
+			nodesData[data.id]={mass:50,fixed:true,color:"red",type:"centre",screenName:data.name
 								,head:data.head}
 			edgesData[data.id]={}
 			$.each(data.biFriends,function(index,user){
-				nodesData[user.id]={mass:3,color:"green",type:"bi",alpha:1,screenName:user.name
+				nodesData[user.id]={mass:20,color:"green",type:"bi",alpha:1,screenName:user.name
 									,head:user.head}
-				edgesData[data.id][user.id]={length:.1}
+				edgesData[data.id][user.id]={length:.5}
 			})
-			$.each(data.uniFriends,function(index,user){
-				nodesData[user.id]={mass:1,color:"blue",type:"uni",alpha:1,screenName:user.name
+			/*$.each(data.uniFriends,function(index,user){
+				nodesData[user.id]={mass:20,color:"blue",type:"uni",alpha:1,screenName:user.name
 									,head:user.head}
-				edgesData[data.id][user.id]={length:.9}
-			})
-			sys.merge({nodes:nodesData,edges:edgesData})
+				edgesData[data.id][user.id]={}
+			})*/
+			return {nodes:nodesData,edges:edgesData}
+		},
+		handleIntimacyData: function(data){
+			
+			sys.parameters({stiffness:2000, repulsion:5000, gravity:true, dt:0.015,friction:0.3})
+			nodesData={}
+			edgesData={}
+			nodesData[data.id]={mass:70,fixed:true,color:"red",type:"centre",screenName:data.name}
+			edgesData[data.id]={}
+			
+			showNum=50;
+			maxScore=data.users[0].score
+			var step=1.15
+			var begin=1
+			var newArray=[]
+			var totalLevel=50
+			for(i=0;begin<50;i++){
+				begin*=step
+				newArray.push(begin)
+			}
+			
+			$.each(data.users,function(index,user){
+				if(index>showNum)return
+				distance=(1/user.score)*maxScore	
 
+				for(i=0;i<newArray.length;i++){
+					if(distance<newArray[i]||i==newArray.length-1){
+						distance=i+1
+						break
+					}
+				}
+				//user mass can't be too small, or they will stick together in the begining
+				nodesData[user.id]={mass:5,color:"green",type:"intimacy",screenName:user.name,
+									friendType:user.friendType,score:user.score,
+									repliedCount:user.repliedCount,comedStatus:user.comedStatus,
+									rtedCount:user.rtedCount,rtCount:user.rtCount,comCount:user.comCount
+									}
+				edgesData[data.id][user.id]={length:distance}
+			})
+
+			return {nodes:nodesData,edges:edgesData}
 		}
 		
 		

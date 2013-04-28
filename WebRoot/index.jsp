@@ -29,8 +29,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 </head>
   
  <body>
-
+<script>
+var forTest=null;
+var forTest2=null
+</script>
 	<div id="dashboard">
+	
 		<ul class="controls">
 			<li><span>@</span> <input class="span2" id="username"
 				placeholder="搜索博主" type="text"></li>

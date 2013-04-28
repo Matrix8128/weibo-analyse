@@ -36,25 +36,9 @@
 		System.out.println(type);
 
 		JSONObject json = null;
-		//json = (JSONObject) session.getAttribute(name + "-" + type);
 		SingleUserAnalyse sua = (SingleUserAnalyse) session
 				.getAttribute(name);
 
-		/* if (sua == null) {
-			sua = new SingleUserAnalyse(name);
-			//is the user existed?
-			json = sua.isExistByName();
-			String error = json.getString("error");
-			if (error != null) {
-				error = "error occurs when try to find out if " + name
-						+ " exists:" + error;
-				json.put("error", error);
-				sua=null;
-			}else{
-				session.setAttribute(name, sua);
-				System.out.println("first for " + name);
-			}
-		} */
 
 		if (sua == null) {
 			sua = new SingleUserAnalyse(name);
@@ -66,7 +50,8 @@
 			json = (JSONObject) session.getAttribute(name + "-" + type);
 			if (json == null) {
 				json = sua.getFriends();
-				if (json.getString("error") == null) {
+				if (!json.has("error")) {
+					json.put("dataType", "relation");
 					session.setAttribute(name + "-" + type, json);
 				}
 			}
@@ -74,7 +59,8 @@
 			json = (JSONObject) session.getAttribute(name + "-" + type);
 			if (json == null) {
 				json = sua.getIntimateUsers();
-				if (json.getString("error") == null) {
+				if (!json.has("error")) {
+					json.put("dataType", "intimacy");
 					session.setAttribute(name + "-" + type, json);
 				}
 			}
@@ -82,6 +68,7 @@
 			json = (JSONObject) session.getAttribute(name + "-" + type);
 			if (json == null) {
 				json.put("error", "developing");
+				json.put("dataType", "interest");
 				session.setAttribute(name + "-" + type, json);
 			}
 
@@ -89,6 +76,7 @@
 			json = (JSONObject) session.getAttribute(name + "-" + type);
 			if (json == null) {
 				json.put("error", "developing");
+				json.put("dataType", "similarity");
 				session.setAttribute(name + "-" + type, json);
 			}
 		} else {
@@ -100,6 +88,7 @@
 		PrintWriter pw = response.getWriter();//用导入java.io.*,或者java.io.PrintWriter否则错误
 		pw.print(json.toString());
 		System.out.println("json object :" + json.toString());
+		//System.out.println("session("+name+"-"+type+"):"+session.getAttribute(name+"-"+type));
 		PrintWriter Pout = new PrintWriter(new FileWriter(
 					"C:\\Users\\Edward\\Desktop\\test.txt"));
 					Pout.println(json.toString());

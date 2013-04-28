@@ -5,6 +5,7 @@
         var ctx = canvas.getContext("2d");
         var particleSystem
         var gfx=arbor.Graphics(canvas)
+        var cenW=null
         var that = {
             init:function(system){
             	
@@ -18,7 +19,7 @@
                 //
                 // save a reference to the particle system for use in the
 				// .redraw() loop
-                particleSystem = system// ËäÈ»systemÃ»ÓÐÏÔÊ¾µÄ´«½øÀ´£¬²»¹ý¿´ÁË¾ÍÊÇÍ¬Ò»¸öÁË¡£
+                particleSystem = system// ï¿½ï¿½È»systemÃ»ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¾ï¿½ï¿½ï¿½Í¬Ò»ï¿½ï¿½ï¿½Ë¡ï¿½
 
                 // inform the system of the screen dimensions so it can map
 				// coords for us.
@@ -75,16 +76,20 @@
             	gfx.clear()
             	particleSystem.eachEdge(function(edge,p1,p2){
             		gfx.line(p1,p2,{stroke:"#b2b19d",alpha:0.5})
+
             	})
+            	
             	particleSystem.eachNode(function(node,pt){
-            		var w=Math.max(20,20+gfx.textWidth(node.data.screenName))
+            		var w=Math.max(70,20+gfx.textWidth(node.data.screenName))
+            		var w=Math.min(100,w)//can't be too large
             		if (node.data.type=="centre"){
-            			
-            			// w*=2
-            			// node.fixed=true
+            			cenW=w
             		}
             		else{
             			w/=2
+            			if(cenW!=null){
+            				w=cenW/2
+            			}
             		}
             		gfx.oval(pt.x-w/2,pt.y-w/2,w,w,{fill:node.data.color})
             		gfx.text(node.data.screenName,pt.x,pt.y+7,{color:"black",align:"center",font:"Arial",size:12})
@@ -100,7 +105,7 @@
                 var dragged = null;
                 var dbclicked=null
                 
-                $(canvas).dblclick(function(e){ //Ë«»÷ÊÂ¼þ
+                $(canvas).dblclick(function(e){ //Ë«ï¿½ï¿½ï¿½Â¼ï¿½
                 	 var pos = $(canvas).offset();             	
                      _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
                      dbclicked = particleSystem.nearest(_mouseP);
