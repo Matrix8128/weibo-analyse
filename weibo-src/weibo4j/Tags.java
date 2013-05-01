@@ -1,7 +1,9 @@
 package weibo4j;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import weibo4j.http.Response;
 import weibo4j.model.Paging;
 import weibo4j.model.PostParameter;
 import weibo4j.model.Tag;
@@ -12,7 +14,7 @@ import weibo4j.org.json.JSONException;
 import weibo4j.org.json.JSONObject;
 import weibo4j.util.WeiboConfig;
 
-public class Tags extends Weibo{
+public class Tags extends Weibo {
 	/**
 	 * 
 	 */
@@ -33,8 +35,8 @@ public class Tags extends Weibo{
 	 */
 	public List<Tag> getTags(String uid) throws WeiboException {
 		return Tag.constructTags(client.get(WeiboConfig.getValue("baseURL")
-						+ "tags.json", new PostParameter[] { new PostParameter(
-						"uid", uid) }));
+				+ "tags.json", new PostParameter[] { new PostParameter("uid",
+				uid) }));
 	}
 
 	/**
@@ -52,10 +54,9 @@ public class Tags extends Weibo{
 	 * @since JDK 1.5
 	 */
 	public List<Tag> getTags(String uid, Paging page) throws WeiboException {
-		return Tag
-				.constructTags(client.get(WeiboConfig.getValue("baseURL")
-						+ "tags.json", new PostParameter[] { 
-					new PostParameter("uid", uid) }, page));
+		return Tag.constructTags(client.get(WeiboConfig.getValue("baseURL")
+				+ "tags.json", new PostParameter[] { new PostParameter("uid",
+				uid) }, page));
 	}
 
 	/**
@@ -78,6 +79,37 @@ public class Tags extends Weibo{
 	}
 
 	/**
+	 * @author Edward
+	 * @param uids
+	 *            要获取标签的用户ID。最大20，逗号分隔
+	 * @return ArrayList<TagWapper> list of TagWapper
+	 * @throws WeiboException
+	 */
+	public ArrayList<TagWapper> myGetTagsBatch(String uids)
+			throws WeiboException {
+		ArrayList<TagWapper> result = new ArrayList<TagWapper>();
+		Response res = client.get(WeiboConfig.getValue("baseURL")
+				+ "tags/tags_batch.json",
+				new PostParameter[] { new PostParameter("uids", uids) });
+		JSONArray tags = res.asJSONArray();
+		try {
+			for (int i = 0; i < tags.length(); i++) {
+				List<Tag> tagList = new ArrayList<Tag>();
+				for (int j = 0; j < tags.getJSONObject(i).getJSONArray("tags").length(); j++) {
+					tagList.add(new Tag(tags.getJSONObject(i)
+							.getJSONArray("tags").getJSONObject(j)));
+				}
+				String id=tags.getJSONObject(i).getString("id");
+				result.add(new TagWapper(tagList,id));
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	/**
 	 * 获取系统推荐的标签列表
 	 * 
 	 * @return list of the tags
@@ -90,8 +122,8 @@ public class Tags extends Weibo{
 	 */
 
 	public List<Tag> getTagsSuggestions() throws WeiboException {
-		return Tag.constructTags(client.get(WeiboConfig
-				.getValue("baseURL") + "tags/suggestions.json"));
+		return Tag.constructTags(client.get(WeiboConfig.getValue("baseURL")
+				+ "tags/suggestions.json"));
 	}
 
 	/**
@@ -107,8 +139,10 @@ public class Tags extends Weibo{
 	 * @since JDK 1.5
 	 */
 	public JSONArray createTags(String tags) throws WeiboException {
-		return client.post(WeiboConfig.getValue("baseURL") + "tags/create.json",
-				new PostParameter[] { new PostParameter("tags", tags) }).asJSONArray();
+		return client.post(
+				WeiboConfig.getValue("baseURL") + "tags/create.json",
+				new PostParameter[] { new PostParameter("tags", tags) })
+				.asJSONArray();
 	}
 
 	/**
@@ -125,9 +159,10 @@ public class Tags extends Weibo{
 	 * @since JDK 1.5
 	 */
 	public JSONObject destoryTag(Integer tag_id) throws WeiboException {
-			return client.post(WeiboConfig.getValue("baseURL") + "tags/destroy.json",
-							new PostParameter[] { new PostParameter("tag_id",
-									tag_id.toString()) }).asJSONObject();
+		return client.post(
+				WeiboConfig.getValue("baseURL") + "tags/destroy.json",
+				new PostParameter[] { new PostParameter("tag_id", tag_id
+						.toString()) }).asJSONObject();
 	}
 
 	/**
@@ -144,8 +179,8 @@ public class Tags extends Weibo{
 	 * @since JDK 1.5
 	 */
 	public List<Tag> destroyTagsBatch(String ids) throws WeiboException {
-		return Tag.constructTags(client.post(
-				WeiboConfig.getValue("baseURL") + "tags/destroy_batch.json",
+		return Tag.constructTags(client.post(WeiboConfig.getValue("baseURL")
+				+ "tags/destroy_batch.json",
 				new PostParameter[] { new PostParameter("ids", ids) }));
 	}
 }

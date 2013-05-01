@@ -12,7 +12,7 @@ public class GetTagsBatch {
 		tm.client.setToken(access_token);
 		TagWapper tags = null;
 		String uids = args[1];
-		try {;
+		try {
 			tags = tm.getTagsBatch(uids);
 			System.out.println(tags.toString());
 		} catch (WeiboException e) {
