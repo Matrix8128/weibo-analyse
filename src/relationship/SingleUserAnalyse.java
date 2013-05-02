@@ -885,6 +885,20 @@ public class SingleUserAnalyse {
 				if (this.status == null) {
 					this.getStatus(needStatusNum);
 				}
+				if (this.rtAuthorList == null) {
+					this.getRtAuthors();
+				}
+				Map<String, Integer> rtedAuthorMap = new HashMap<String, Integer>();
+				int totalRtedCount=0;
+				for(UserCount uc:this.rtAuthorList){
+					totalRtedCount+=uc.rtedCount;
+				}
+				System.out.println("=======totalRtedCount\n"+totalRtedCount);
+				for(UserCount uc:this.rtAuthorList){
+					int rtLevel=(int)(uc.rtedCount*1.0/totalRtedCount*10)/3+1;
+					System.out.println(uc.user.getScreenName()+"\t"+rtLevel);
+					rtedAuthorMap.put(uc.user.getId(),rtLevel);
+				}
 				
 				JSONObject statusData=new JSONObject();
 				JSONArray statusArray=new JSONArray();
@@ -903,8 +917,14 @@ public class SingleUserAnalyse {
 					topics=this.getTopics(text);
 					
 					mem.put("originText", "");
+					mem.put("rtLevel", 0);
 					Status originS = s.getRetweetedStatus();
 					if (originS != null) {
+						User author=originS.getUser();
+						mem.put("rtLevel", 1);
+						if(author!=null &&rtedAuthorMap.containsKey(author.getId())){
+							mem.put("rtLevel", rtedAuthorMap.get(author.getId()));
+						}
 						originText = originS.getText();
 						originText=this.washText(originText);
 						mem.put("originText",originText);
@@ -992,7 +1012,7 @@ public class SingleUserAnalyse {
 		
 		//process the status Data
 		int originWeight=1;
-		int retweenWeight=2;
+		//int retweenWeight=2;
 		int topicWeight=3;
 		JSONArray semiStatus=semiData.getJSONObject("statusData").getJSONArray("array");
 		JSONArray weightedStatus=new JSONArray();
@@ -1005,7 +1025,8 @@ public class SingleUserAnalyse {
 				text+=" "+str;
 			}
 			str=status.getString("originText");
-			for(int j=0;j<retweenWeight;j++){
+			int rtLevel=status.getInt("rtLevel");
+			for(int j=0;j<rtLevel+1;j++){
 				text+=" "+str;
 			}
 			str=status.getString("topic");
@@ -1019,7 +1040,7 @@ public class SingleUserAnalyse {
 		
 		int centreWeight=5;
 		int uniFriendWeight=2;
-		int rtedWeight=2;
+		int rtedWeight=1;
 		JSONArray semiUsers=semiData.getJSONObject("usersData").getJSONArray("usersArray");
 		JSONArray weightedUsers=new JSONArray();
 		for(int i=0;i<semiUsers.length();i++){
@@ -1116,10 +1137,10 @@ public class SingleUserAnalyse {
 			// ts.json.put("comUsers",ts.comUsers);
 			// ts.json.put("rtAuthors", ts.rtAuthors);
 			// ts.json.put("repliedUsers", ts.repliedUsers);
-			//JSONObject js = ts.getIndexData();
-			File input=new File("C:\\Users\\Edward\\Desktop\\semi.txt");
-			JSONObject js=new JSONObject(new JSONTokener(new FileReader(input)));
-			JSONObject result=ts.weightAdjust(js);
+			JSONObject result = ts.getIndexData();
+			//File input=new File("C:\\Users\\Edward\\Desktop\\semi.txt");
+			//JSONObject js=new JSONObject(new JSONTokener(new FileReader(input)));
+			//JSONObject result=ts.weightAdjust(js);
 			Pout.println(result.toString());
 			Pout.close();
 			
