@@ -235,58 +235,47 @@ public class LuceneAnalyser {
 		ArffLoader arf = new ArffLoader();
 		arf.setFile(inputFile);
 		Instances originIns = arf.getDataSet();
-
-		Instances insTest = new Instances(originIns, 0, 1);
+		Instances insTest = new Instances(originIns);
 		insTest.deleteStringAttributes();
-		insTest.delete();
-		ArrayList<String> wordList = new ArrayList<String>();
-		for (int i = 0; i < originIns.numInstances(); i++) {
-			Instance tempIns = new Instance(originIns.instance(i));
-			String word = tempIns.stringValue(originIns.attribute("text"));
-			tempIns.deleteAttributeAt(0);
-			wordList.add(word);
-			insTest.add(tempIns);
-		}
+		int totalNum = insTest.numInstances();
 
-		SimpleKMeans sm = new SimpleKMeans();
-		// EM sm=new EM();
-		sm.setNumClusters(clusterNum);
-		sm.setPreserveInstancesOrder(true);// very important
+		
+		//SimpleKMeans sm = new SimpleKMeans();
+		 EM em=new EM();
+		em.setNumClusters(clusterNum);
+		MakeDensityBasedClusterer sm=new MakeDensityBasedClusterer();
+		sm.setClusterer(em);
 		sm.buildClusterer(insTest);
 
-		int totalNum = insTest.numInstances();
+		
 		System.out.println("totalNum:" + insTest.numInstances());
 		System.out.println("============================");
-		Instances centreIns = sm.getClusterCentroids();
 		Map<Integer, ArrayList<String>> result = new HashMap<Integer, ArrayList<String>>();
-		for (int i = 0; i < centreIns.numInstances(); i++) {
-			Instance ins = centreIns.instance(i);
+		for (int i = 0; i < clusterNum; i++) {
 			result.put(i, new ArrayList<String>());
-			// System.out.println(i+":\t\n"+ins);
 		}
-		int[] assign = sm.getAssignments();
-		for (int i = 0; i < assign.length; i++) {
-			Instance ins = insTest.instance(i);
-			// System.out.println(wordMap.containsKey(ins.toString()));
-			result.get(assign[i]).add(wordList.get(i));
+		
+		for (int i = 0; i < totalNum; i++) {
+			Instance ins=originIns.instance(i);
+			String word=ins.stringValue(0);
+			Instance tempIns=new Instance(ins);
+			tempIns.deleteAttributeAt(0);
+			int cluster=sm.clusterInstance(tempIns);
+			result.get(cluster).add(word);
+			
 		}
-		//System.out.println(sm.toString());
+		
 
+		
+		//print the result
 		ArrayList<String> words = new ArrayList<String>();
-		// int errorNum=0;
 		for (int k : result.keySet()) {
 			words = result.get(k);
 			System.out.println("cluster" + k + ":" + words.size() + ":\t"
-					+ words.size() * 1.0 / totalNum * 100);
+					+ (int)(words.size() * 1.0 / totalNum * 100));
 			for (int i = 0; i < words.size(); i++) {
 				String s = words.get(i);
 				assert linkMap.containsKey(s);
-				/*
-				 * if(!linkMap.containsKey(s)){
-				 * System.out.println("XXXXXXXXXXXXXXXXXX");
-				 * System.out.println(s); System.out.println(linkMap.get(s));
-				 * errorNum++; continue; }
-				 */
 				int freq = linkMap.get(s).totalFreq;
 				words.set(i, "(" + s + ":" + freq + ")");
 			}

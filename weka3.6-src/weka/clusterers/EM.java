@@ -952,7 +952,49 @@ public class EM
     return temp.toString();
   }
 
-  private String pad(String source, String padChar, 
+  /**
+   * verbose output for debugging
+   * @param inst the training instances
+   */
+  private void EM_Report (Instances inst) {
+    int i, j, l, m;
+    System.out.println("======================================");
+
+    for (j = 0; j < m_num_clusters; j++) {
+      for (i = 0; i < m_num_attribs; i++) {
+	System.out.println("Clust: " + j + " att: " + i + "\n");
+
+	if (m_theInstances.attribute(i).isNominal()) {
+	  if (m_model[j][i] != null) {
+	    System.out.println(m_model[j][i].toString());
+	  }
+	}
+	else {
+	  System.out.println("Normal Distribution. Mean = " 
+			     + Utils.doubleToString(m_modelNormal[j][i][0]
+						    , 8, 4) 
+			     + " StandardDev = " 
+			     + Utils.doubleToString(m_modelNormal[j][i][1]
+						    , 8, 4) 
+			     + " WeightSum = " 
+			     + Utils.doubleToString(m_modelNormal[j][i][2]
+						    , 8, 4));
+	}
+      }
+    }
+    
+    for (l = 0; l < inst.numInstances(); l++) {
+      m = Utils.maxIndex(m_weights[l]);
+      System.out.print("Inst " + Utils.doubleToString((double)l, 5, 0) 
+		       + " Class " + m + "\t");
+      for (j = 0; j < m_num_clusters; j++) {
+	System.out.print(Utils.doubleToString(m_weights[l][j], 7, 5) + "  ");
+      }
+      System.out.println();
+    }
+  }
+
+private String pad(String source, String padChar, 
                      int length, boolean leftPad) {
     StringBuffer temp = new StringBuffer();
 
@@ -1011,49 +1053,6 @@ public class EM
     }
 
     return  temp.toString();
-  }
-
-
-  /**
-   * verbose output for debugging
-   * @param inst the training instances
-   */
-  private void EM_Report (Instances inst) {
-    int i, j, l, m;
-    System.out.println("======================================");
-
-    for (j = 0; j < m_num_clusters; j++) {
-      for (i = 0; i < m_num_attribs; i++) {
-	System.out.println("Clust: " + j + " att: " + i + "\n");
-
-	if (m_theInstances.attribute(i).isNominal()) {
-	  if (m_model[j][i] != null) {
-	    System.out.println(m_model[j][i].toString());
-	  }
-	}
-	else {
-	  System.out.println("Normal Distribution. Mean = " 
-			     + Utils.doubleToString(m_modelNormal[j][i][0]
-						    , 8, 4) 
-			     + " StandardDev = " 
-			     + Utils.doubleToString(m_modelNormal[j][i][1]
-						    , 8, 4) 
-			     + " WeightSum = " 
-			     + Utils.doubleToString(m_modelNormal[j][i][2]
-						    , 8, 4));
-	}
-      }
-    }
-    
-    for (l = 0; l < inst.numInstances(); l++) {
-      m = Utils.maxIndex(m_weights[l]);
-      System.out.print("Inst " + Utils.doubleToString((double)l, 5, 0) 
-		       + " Class " + m + "\t");
-      for (j = 0; j < m_num_clusters; j++) {
-	System.out.print(Utils.doubleToString(m_weights[l][j], 7, 5) + "  ");
-      }
-      System.out.println();
-    }
   }
 
 
