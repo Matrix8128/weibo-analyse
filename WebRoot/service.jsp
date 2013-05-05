@@ -8,7 +8,9 @@
 				weibo4j.model.UserWapper,
 				weibo4j.model.User,
 				weibo4j.model.WeiboException,
-				relationship.SingleUserAnalyse;"%>
+				relationship.SingleUserAnalyse,
+				relationship.LuceneAnalyser,
+				relationship.Test"%>
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme() + "://"
@@ -34,11 +36,13 @@
 		System.out.println("=========");
 		System.out.println(name);
 		System.out.println(type);
+		
+		PrintWriter Pout = new PrintWriter(new FileWriter(
+				"C:\\Users\\Edward\\Desktop\\test.txt"));
 
 		JSONObject json = null;
 		SingleUserAnalyse sua = (SingleUserAnalyse) session
 				.getAttribute(name);
-
 
 		if (sua == null) {
 			sua = new SingleUserAnalyse(name);
@@ -67,9 +71,18 @@
 		} else if (type.equals("interest")) {
 			json = (JSONObject) session.getAttribute(name + "-" + type);
 			if (json == null) {
-				json.put("error", "developing");
-				json.put("dataType", "interest");
-				session.setAttribute(name + "-" + type, json);
+				LuceneAnalyser la=new LuceneAnalyser("D:\\MyEclipse\\MyEclipse 10\\Workspaces\\weibo-analyse\\luceneDir",
+				"D:\\MyEclipse\\MyEclipse 10\\Workspaces\\weibo-analyse\\keywords.arff");
+				System.out.println(basePath+"luce"+"|||"+basePath+"interest.arff");
+				JSONObject semiData=sua.getIndexData();
+			//	Pout.println(semiData.toString());
+				json=la.getKeyWords(semiData);
+				//json.put("error", "developing");
+				if (!json.has("error")) {
+					json.put("dataType", "keywords");
+					session.setAttribute(name + "-" + type, json);
+				}
+
 			}
 
 		} else if (type.equals("similarity")) {
@@ -89,11 +102,10 @@
 		pw.print(json.toString());
 		System.out.println("json object :" + json.toString());
 		//System.out.println("session("+name+"-"+type+"):"+session.getAttribute(name+"-"+type));
-		PrintWriter Pout = new PrintWriter(new FileWriter(
-					"C:\\Users\\Edward\\Desktop\\test.txt"));
-					Pout.println(json.toString());
-			Pout.close();
-					
+		
+		Pout.println(json.toString());
+		Pout.close();
+
 		pw.close();
 	%>
 </body>

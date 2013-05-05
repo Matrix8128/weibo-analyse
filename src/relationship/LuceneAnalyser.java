@@ -10,10 +10,8 @@ import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import java.io.*;
 import java.util.*;
-import java.util.Queue;
 
-import weibo4j.model.Status;
-import weibo4j.model.StatusWapper;
+import weibo4j.model.WeiboException;
 import weibo4j.org.json.JSONArray;
 import weibo4j.org.json.JSONException;
 import weibo4j.org.json.JSONObject;
@@ -34,12 +32,15 @@ public class LuceneAnalyser {
 
 	public LuceneAnalyser() {
 		super();
+		System.out.println("sucess?");	
+		
 		// TODO Auto-generated constructor stub
 	}
 
-	public LuceneAnalyser(String wekaFile) {
+	public LuceneAnalyser(String indexDir,String wekaFile) {
 		super();
-		this.wekaFile = wekaFile;
+		this.indexDir=indexDir;
+		this.wekaFile=wekaFile;
 	}
 
 	public void buildIndex(JSONObject indexData) {
@@ -94,8 +95,6 @@ public class LuceneAnalyser {
 
 	}
 
-	
-
 	class MyTerm {
 		Term originTrem = null;
 		int totalFreq = 0;
@@ -138,9 +137,7 @@ public class LuceneAnalyser {
 
 	}
 
-	PriorityQueue<MyTerm> sortedTermQueue = new PriorityQueue<MyTerm>(1,
-
-	new Comparator<MyTerm>() {
+	Comparator MyTermCompare = new Comparator<MyTerm>() {
 
 		@Override
 		public int compare(MyTerm o1, MyTerm o2) {
@@ -155,9 +152,12 @@ public class LuceneAnalyser {
 			}
 		}
 
-	});
+	};
 
-	public void getIndexInfo(String indexdir,int freqThreshold) {
+	PriorityQueue<MyTerm> sortedTermQueue = new PriorityQueue<MyTerm>(1,
+			MyTermCompare);
+
+	public void getIndexInfo(String indexdir, int freqThreshold) {
 		IndexReader reader = null;
 		try {
 			Directory dir = FSDirectory.open(new File(indexdir));
@@ -178,7 +178,9 @@ public class LuceneAnalyser {
 				MyTerm temp = new MyTerm(terms.term(), termDocs, maxDocNum);
 				if (temp.totalFreq < freqThreshold) {
 					continue;
-				}
+				}/*
+				 * if(temp.originTrem.text().length()==1){ continue; }
+				 */
 				linkMap.put(temp.originTrem.text(), temp);
 				sortedTermQueue.add(temp);
 				termList.add(temp);
@@ -188,10 +190,10 @@ public class LuceneAnalyser {
 			// System.exit(0);
 			int num = 0;
 
-			/*while (!sortedTermQueue.isEmpty()) {
+			while (!sortedTermQueue.isEmpty()) {
 				num++;
 				System.out.println(num + ":" + sortedTermQueue.poll());
-			}*/
+			}
 			System.out.println("read index info done");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -229,7 +231,7 @@ public class LuceneAnalyser {
 		Pout.close();
 	}
 
-	public Map<Integer, ArrayList<String>> Cluster(String wekaFilePath,int clusterNum)
+	public JSONArray Cluster(String wekaFilePath, int clusterNum)
 			throws Exception {
 		File inputFile = new File(wekaFilePath);
 		ArffLoader arf = new ArffLoader();
@@ -239,54 +241,121 @@ public class LuceneAnalyser {
 		insTest.deleteStringAttributes();
 		int totalNum = insTest.numInstances();
 
-		
-		//SimpleKMeans sm = new SimpleKMeans();
-		 EM em=new EM();
+		// SimpleKMeans sm = new SimpleKMeans();
+		EM em = new EM();
 		em.setNumClusters(clusterNum);
-		MakeDensityBasedClusterer sm=new MakeDensityBasedClusterer();
+		MakeDensityBasedClusterer sm = new MakeDensityBasedClusterer();
 		sm.setClusterer(em);
 		sm.buildClusterer(insTest);
 
-		
 		System.out.println("totalNum:" + insTest.numInstances());
 		System.out.println("============================");
 		Map<Integer, ArrayList<String>> result = new HashMap<Integer, ArrayList<String>>();
 		for (int i = 0; i < clusterNum; i++) {
 			result.put(i, new ArrayList<String>());
 		}
-		
-		for (int i = 0; i < totalNum; i++) {
-			Instance ins=originIns.instance(i);
-			String word=ins.stringValue(0);
-			Instance tempIns=new Instance(ins);
-			tempIns.deleteAttributeAt(0);
-			int cluster=sm.clusterInstance(tempIns);
-			result.get(cluster).add(word);
-			
-		}
-		
 
-		
-		//print the result
+		for (int i = 0; i < totalNum; i++) {
+			Instance ins = originIns.instance(i);
+			String word = ins.stringValue(0);
+			Instance tempIns = new Instance(ins);
+			tempIns.deleteAttributeAt(0);
+			int cluster = sm.clusterInstance(tempIns);
+			result.get(cluster).add(word);
+
+		}
+
+		// print the result
 		ArrayList<String> words = new ArrayList<String>();
+		JSONArray keyWords = new JSONArray();
 		for (int k : result.keySet()) {
 			words = result.get(k);
-			System.out.println("cluster" + k + ":" + words.size() + ":\t"
-					+ (int)(words.size() * 1.0 / totalNum * 100));
+			PriorityQueue<MyTerm> clusterQueue = new PriorityQueue<MyTerm>(1,
+					MyTermCompare);
 			for (int i = 0; i < words.size(); i++) {
 				String s = words.get(i);
 				assert linkMap.containsKey(s);
 				int freq = linkMap.get(s).totalFreq;
+				clusterQueue.add(linkMap.get(s));
 				words.set(i, "(" + s + ":" + freq + ")");
 			}
+
+			JSONArray clusterArray = new JSONArray();
+			int num = clusterQueue.size() / 10 + 1;// 5%
+			int totalFreq = 0;
+			int totalLength = 0;
+			for (int i = 0; i < num && !clusterQueue.isEmpty();) {
+				JSONObject mem = new JSONObject();
+				MyTerm myTerm = clusterQueue.poll();
+				String word = myTerm.originTrem.text();
+				if (word.length() == 1) {
+					continue;
+				}
+				mem.put("text", word);
+				mem.put("freq", myTerm.totalFreq);
+				clusterArray.put(mem);
+				i++;
+				totalFreq += myTerm.totalFreq;
+				totalLength += word.length();
+			}
+
+			double averFreq = totalFreq * 1.0 / num;
+			double averLength = totalLength * 1.0 / num;
+			int count = 0;
+			while (!clusterQueue.isEmpty() && count < num) {
+				MyTerm myTerm = clusterQueue.poll();
+				String word = myTerm.originTrem.text();
+				int freq = myTerm.totalFreq;
+				int times = (int) (word.length() / averFreq) + 1;
+				if (freq > averFreq / times) {
+					JSONObject mem = new JSONObject();
+					mem.put("text", word);
+					mem.put("freq", freq);
+					mem.put("extra", true);
+					clusterArray.put(mem);
+				}
+			}
+
+			keyWords.put(clusterArray);
+			System.out.println("cluster" + k + ":" + words.size() + ":\t"
+					+ (int) (words.size() * 1.0 / totalNum * 100));
 			if (result.get(k).size() < 100) {
 				System.out.println(result.get(k));
 			}
 		}
 		// System.out.println("errorNum:"+errorNum);
-		return result;
+		return keyWords;
 	}
 
+	public JSONObject getKeyWords(JSONObject semiData) {
+		JSONObject keyWords = new JSONObject();
+		try {
+			this.buildIndex(semiData);
+			this.getIndexInfo(this.indexDir, 4);
+			this.generateWekaFile(this.termList, this.maxDocNum, this.wekaFile);
+			JSONArray array = this.Cluster(this.wekaFile, 7);
+			int totalNum=0;
+			for(int i=0;i<array.length();i++){
+				totalNum+=array.getJSONArray(i).length();
+			}
+			keyWords.put("totalNum", totalNum);
+			keyWords.put("WordList", array);
+		} catch (WeiboException e) {
+			System.out.print("getKeyWords++++++weibo\n");
+			System.out.print("error:" + e.getError() + "toString:"
+					+ e.toString());
+			keyWords.put("error", e.getError());
+			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.print("getKeyWords++++++Exception");
+			keyWords.put("error", e.toString());
+			e.printStackTrace();
+		} finally {
+			return keyWords;
+		}
+	}
+
+	
 	/**
 	 * @param args
 	 */
@@ -295,20 +364,21 @@ public class LuceneAnalyser {
 		LuceneAnalyser ts = new LuceneAnalyser();
 		try {
 			String semiFile = "C:\\Users\\Edward\\Desktop\\semi.txt";
-			// PrintWriter Pout = new PrintWriter(new FileWriter(semiFile));
-			// JSONObject result = sua.getIndexData();
-			// Pout.println(result.toString());
-			// Pout.close();
+			String resultFile = "C:\\Users\\Edward\\Desktop\\result.txt";
+		//	PrintWriter Pout = new PrintWriter(new FileWriter(semiFile));
+			//JSONObject semiData = sua.getIndexData();
+		//	Pout.println(semiData.toString());
+		//	Pout.close();
 
 			File input = new File(semiFile);
 			JSONObject js = new JSONObject(new JSONTokener(
 					new FileReader(input)));
 
 			// js=sua.weightAdjust(js);
-			ts.buildIndex(js);
-			ts.getIndexInfo(ts.indexDir,6);
-			ts.generateWekaFile(ts.termList, ts.maxDocNum, ts.wekaFile);
-			ts.Cluster(ts.wekaFile,8);
+			JSONObject result = ts.getKeyWords(js);
+			PrintWriter resultOut = new PrintWriter(new FileWriter(resultFile));
+			resultOut.println(result.toString());
+			resultOut.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

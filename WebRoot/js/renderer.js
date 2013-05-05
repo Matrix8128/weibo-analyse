@@ -80,21 +80,24 @@
             	})
             	
             	particleSystem.eachNode(function(node,pt){
-            		var w=Math.max(70,20+gfx.textWidth(node.data.screenName))
-            		var w=Math.min(100,w)//can't be too large
-            		if (node.data.type=="centre"){
-            			cenW=w
-            		}
-            		else{
-            			w/=2
-            			if(cenW!=null){
-            				w=cenW/2
+            		if(node.data.dataType=="keywords"){
+            			gfx.text(node.data.text,pt.x,pt.y+7,{size:node.data.weight,color:node.data.color,align:"center",font:"Arial"})
+            		}else{
+            			var w=Math.max(70,20+gfx.textWidth(node.data.screenName))
+            			var w=Math.min(100,w)// can't be too large
+            			if (node.data.type=="centre"){
+            				cenW=w
             			}
+            			else{
+            				w/=2
+            				if(cenW!=null){
+            					w=cenW/2
+            				}
+            			}
+            			gfx.oval(pt.x-w/2,pt.y-w/2,w,w,{fill:node.data.color})
+            			gfx.text(node.data.screenName,pt.x,pt.y+7,{color:"black",align:"center",font:"Arial",size:12})
+            			gfx.text(node.data.screenName,pt.x,pt.y+7,{color:"black",align:"center",font:"Arial",size:12})
             		}
-            		gfx.oval(pt.x-w/2,pt.y-w/2,w,w,{fill:node.data.color})
-            		gfx.text(node.data.screenName,pt.x,pt.y+7,{color:"black",align:"center",font:"Arial",size:12})
-            		gfx.text(node.data.screenName,pt.x,pt.y+7,{color:"black",align:"center",font:"Arial",size:12})
-            		
             	})
             	
 
@@ -105,13 +108,13 @@
                 var dragged = null;
                 var dbclicked=null
                 
-                $(canvas).dblclick(function(e){ //˫���¼�
+                $(canvas).dblclick(function(e){ // ˫���¼�
                 	 var pos = $(canvas).offset();             	
                      _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
                      dbclicked = particleSystem.nearest(_mouseP);
                      if (dbclicked===null || dbclicked.node===undefined) return
                      if (dbclicked.node !== null) dbclicked.node.fixed = false             
-                     //alert(dbclicked.node.data.screenName)
+                     // alert(dbclicked.node.data.screenName)
                      eventHandler.showUser(dbclicked.node)
                      
                      dbclicked.node.tempMass = 1000

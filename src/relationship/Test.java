@@ -103,14 +103,9 @@ public class Test {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		String s="111";
-		ArrayList<String> t=new ArrayList<String>();
-		t.add(s);
-		String x=t.get(0);
-		x="333";
-		t.set(0, x);
-		s="222";
-		System.out.println(t);
+		String s="1胡新chen3";
+
+		System.out.println(s.length());
 		//new Test().temp();
 	}
 	

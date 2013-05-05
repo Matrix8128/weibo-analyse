@@ -71,6 +71,8 @@ Visualization = function(info,workplace, canvasId) {
 				result=that.handleRelationData(data)
 			}else if(data.dataType=="intimacy"){
 				result=that.handleIntimacyData(data)
+			}else if(data.dataType=="keywords"){
+				result=that.handleKeyWordsData(data)
 			}else{
 				alert("wrong dataType:"+data.dataType)
 				return
@@ -82,7 +84,7 @@ Visualization = function(info,workplace, canvasId) {
 			sys.parameters({stiffness:2000, repulsion:6000, gravity:true, dt:0.015,friction:0.3})
 			var nodesData={}
 			var edgesData={}
-			nodesData[data.id]={mass:50,fixed:true,color:"red",type:"centre",screenName:data.name
+			nodesData[data.id]={mass:50,fixed:true,color:"red",dataType:data.dataType,type:"centre",screenName:data.name
 								,head:data.head}
 			edgesData[data.id]={}
 			$.each(data.biFriends,function(index,user){
@@ -127,7 +129,7 @@ Visualization = function(info,workplace, canvasId) {
 					}
 				}
 				//user mass can't be too small, or they will stick together in the begining
-				nodesData[user.id]={mass:5,color:"green",type:"intimacy",screenName:user.name,
+				nodesData[user.id]={mass:5,color:"green",type:"intimacy",dataType:data.dataType,screenName:user.name,
 									friendType:user.friendType,score:user.score,
 									repliedCount:user.repliedCount,comedStatus:user.comedStatus,
 									rtedCount:user.rtedCount,rtCount:user.rtCount,comCount:user.comCount
@@ -136,7 +138,32 @@ Visualization = function(info,workplace, canvasId) {
 			})
 
 			return {nodes:nodesData,edges:edgesData}
-		}
+		},
+		
+		
+		handleKeyWordsData: function(data){
+			sys.parameters({stiffness:200, repulsion:7000, gravity:true, dt:0.015,friction:0.3})
+			var nodesData={}
+			var edgesData={}
+			
+			$.each(data.WordList,function(index,array){
+				//nodesData[index]={mass:1,color:"red",dataType:data.dataType,type:"centre",text:index}
+				//edgesData[index]={};
+				words=[]
+				$.each(array,function(i,word){
+					nodesData[word.text]={mass:10,color:"green",dataType:data.dataType,type:"keyWord",weight:word.freq,text:word.text}
+					
+					/*edgesData[word.text]={}
+					$.each(words,function(j,text){
+						edgesData[text][word.text]={alpha:.1}
+					})
+					words.push(word.text);*/
+					
+				})
+			})
+			
+			return {nodes:nodesData,edges:edgesData}
+		},
 		
 		
 	}

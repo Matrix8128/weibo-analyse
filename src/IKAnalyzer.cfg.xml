@@ -5,7 +5,7 @@
 	<!--用户可以在这里配置自己的扩展字典 
 	<entry key="ext_dict">ext.dic;</entry> 
 	-->
-	<!--用户可以在这里配置自己的扩展停止词字典--><entry key="ext_dict">\\myDictionary\\my_sogou.dic;</entry>
+	<!--用户可以在这里配置自己的扩展停止词字典--><entry key="ext_dict">\\myDictionary\\my_sogou.dic;\\myDictionary\\baidu.dic;\\myDictionary\\qq.dic;</entry>
 	<entry key="ext_stopwords">\\myDictionary\\chinese_stopword.dic;\\myDictionary\\stopword.dic;\\myDictionary\\addon.dic</entry> 
 	
 </properties>

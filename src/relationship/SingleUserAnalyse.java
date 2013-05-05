@@ -29,8 +29,8 @@ import java.util.regex.*;
  import java.util.PriorityQueue;*/
 
 public class SingleUserAnalyse {
-	// String access_token ="2.00prQs_CixbFRE1a4bbda7e90jsdM8";
-	 String access_token = "2.00N8EaxB08LsGa4ebcc4e9ac0YYqxw";
+	 //String access_token ="2.00prQs_CixbFRE1a4bbda7e90jsdM8";
+	  String access_token = "2.00N8EaxB08LsGa4ebcc4e9ac0YYqxw";
 	//String access_token = "2.008w7_4DmapluDdf171919f00qPD39";
 	/*
 	 * String id = "1796533527"; String name = "胡新辰点点点";
@@ -97,7 +97,7 @@ public class SingleUserAnalyse {
 	// 用户最新发布微博列表id
 	JSONObject userTimelineIds = null;
 	// 用户发布的微博列表
-	int needStatusNum = 300;// 需要获得微博数量
+	int needStatusNum = 200;// 需要获得微博数量
 	StatusWapper status = null;
 	// 按评论数量排序（降序）的微博列表
 	PriorityQueue<Status> comQueue = null;
@@ -1120,6 +1120,32 @@ public class SingleUserAnalyse {
 		}
 		
 	}
+	public JSONObject getKeyWords() {
+		JSONObject semiData=null;
+		JSONObject keyWords=new JSONObject();
+		try {
+			semiData = this.getIndexData();
+			System.out.println("get semiData:+++++++++++++++");
+			System.out.println(semiData.toString());
+			LuceneAnalyser la=new LuceneAnalyser();
+			
+			keyWords=la.getKeyWords(semiData);
+		}  catch (WeiboException e) {
+			System.out.print("getKeyWords++++++weibo\n");
+			System.out.print("error:" + e.getError() + "toString:"
+					+ e.toString());
+			keyWords.put("error", e.getError());
+			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.print("getKeyWords++++++Exception");
+			keyWords.put("error", e.toString());
+			e.printStackTrace();
+		} finally {
+			return keyWords;
+		}
+
+	}
+	
 	// 方法之间有依赖关系，前3个方法(getCentreUser,getFriends,getStatus)必须先执行。
 	public static void main(String[] args) {
 		try {
@@ -1137,7 +1163,7 @@ public class SingleUserAnalyse {
 			// ts.json.put("comUsers",ts.comUsers);
 			// ts.json.put("rtAuthors", ts.rtAuthors);
 			// ts.json.put("repliedUsers", ts.repliedUsers);
-			JSONObject result = ts.getIndexData();
+			JSONObject result = ts.getKeyWords();
 			//File input=new File("C:\\Users\\Edward\\Desktop\\semi.txt");
 			//JSONObject js=new JSONObject(new JSONTokener(new FileReader(input)));
 			//JSONObject result=ts.weightAdjust(js);
