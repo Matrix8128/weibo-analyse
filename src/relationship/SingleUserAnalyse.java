@@ -29,12 +29,14 @@ import java.util.regex.*;
  import java.util.PriorityQueue;*/
 
 public class SingleUserAnalyse {
-	 //String access_token ="2.00prQs_CixbFRE1a4bbda7e90jsdM8";
-	  String access_token = "2.00N8EaxB08LsGa4ebcc4e9ac0YYqxw";
-	//String access_token = "2.008w7_4DmapluDdf171919f00qPD39";
+	// String access_token ="2.00prQs_CixbFRE1a4bbda7e90jsdM8";
+	// String access_token = "2.00N8EaxB08LsGa4ebcc4e9ac0YYqxw";
+	String access_token = "2.008w7_4DmapluDdf171919f00qPD39";
 	/*
 	 * String id = "1796533527"; String name = "胡新辰点点点";
 	 */
+	String tokenURL = null;
+	GetAccessToken getAccessToken = new GetAccessToken();
 	String id = null;
 	String name = null;
 
@@ -133,11 +135,12 @@ public class SingleUserAnalyse {
 			this.name = name;
 			this.count = count;
 		}
-		public UserCount(User user,int count,int friendType){
+
+		public UserCount(User user, int count, int friendType) {
 			this.user = user;
 			this.count = count;
 			this.name = user.getScreenName();
-			this.friendType=friendType;
+			this.friendType = friendType;
 		}
 
 		@Override
@@ -149,6 +152,7 @@ public class SingleUserAnalyse {
 	}
 
 	private void init() {
+		this.access_token = this.getAccessToken.ReadToken(this.tokenURL);
 		um = new Users();
 		um.client.setToken(access_token);
 		fm = new Friendships();
@@ -157,40 +161,53 @@ public class SingleUserAnalyse {
 		tm.client.setToken(access_token);
 		cm = new Comments();
 		cm.client.setToken(access_token);
+
 	}
+
 	/**
 	 * 提供之一就行，另一个参数用null代替，不过如果都提供会默认等同于只用name，
 	 * 
 	 * @param id
 	 * @param name
 	 */
-	public SingleUserAnalyse(String id, String name) {
+	public SingleUserAnalyse(String id, String name, String tokenURL) {
 		// json.put("name", name);
-		if(name==null){
-			this.id=id;
-			;//getCenter by id
+		if (name == null) {
+			this.id = id;
+			;// getCenter by id
 		}
-		this.name=name;
+		this.name = name;
+		this.tokenURL = tokenURL;
 		init();
 	}
 
-	public SingleUserAnalyse(String name) {
+	public SingleUserAnalyse(String name, String tokenURL) {
 		// json.put("name", name);
-		this.name=name;
+		this.name = name;
+		this.tokenURL = tokenURL;
 		init();
+	}
+
+	public String getId() {
+		if (this.centreUser != null) {
+			return this.centreUser.getId();
+		} else {
+			return null;
+		}
 	}
 
 	/**
 	 * find out if the user is existed by get user info form weibo-api
+	 * 
 	 * @return the error attribute contain the problem occured.
 	 */
-	public JSONObject isExistByName(){
-		
-		JSONObject result=new JSONObject();
-		try{
+	public JSONObject isExistByName() {
+
+		JSONObject result = new JSONObject();
+		try {
 			result.put("name", this.name);
 			this.getCentreUser();
-		}catch (WeiboException e) {
+		} catch (WeiboException e) {
 			result.put("error", e.getError());
 			e.printStackTrace();
 		} catch (Exception e) {
@@ -200,6 +217,7 @@ public class SingleUserAnalyse {
 			return result;
 		}
 	}
+
 	// API 一次
 	private User getCentreUser() throws Exception {
 
@@ -219,11 +237,12 @@ public class SingleUserAnalyse {
 		int MAX = 5000;// 防止出错死循环不停地抓
 		int count = 200;
 		int cursor = 0;
+
 		try {
 			if (centreUser == null) {
 				getCentreUser();
 			}
-			friendsJson=new JSONObject();
+			friendsJson = new JSONObject();
 			friendsJson.put("id", centreUser.getId());
 			friendsJson.put("name", centreUser.getScreenName());
 			userId = centreUser.getId();
@@ -261,7 +280,7 @@ public class SingleUserAnalyse {
 						member.put("head", u.getProfileImageURL()); //
 						uniFriendArray.put(member);
 					}
-					//System.out.println(incaseNum + ":" + u.getScreenName());
+					// System.out.println(incaseNum + ":" + u.getScreenName());
 				}
 				cursor = (int) users.getNextCursor();
 				if (cursor == 0 || incaseNum > MAX) {
@@ -279,19 +298,30 @@ public class SingleUserAnalyse {
 			friendsJson.put("uniFriends", uniFriendArray);
 
 		} catch (WeiboException e) {
-			friendsJson.put("error", e.getError());
-			System.out.println("get weiboException+++++++++");
-			e.printStackTrace();
-			throw e;//be throwed out of the funciton,would't be caught by the follwing catch
-					//eventhought WeiboException is subclass of Exception
+			int errorCode = e.getErrorCode();
+			if (errorCode == 10023) {// user limit
+				this.getAccessToken.ResetToken(this.tokenURL);
+				this.access_token = this.getAccessToken
+						.ReadToken(this.tokenURL);
+				friendsJson = this.getFriends();
+			} else {
+				friendsJson.put("error", e.getError());
+				System.out.println("get weiboException+++++++++");
+				e.printStackTrace();
+				throw e;// be throwed out of the funciton,would't be caught by
+						// the
+						// follwing catch
+						// eventhought WeiboException is subclass of Exception
+			}
 		} catch (Exception e) {
 			System.out.println("get Exception-------------");
-			//e.getMessage() may return null,and e.toString() equals ObjectName:message
-			friendsJson.put("error",e.toString());
-			e.printStackTrace();		
+			// e.getMessage() may return null,and e.toString() equals
+			// ObjectName:message
+			friendsJson.put("error", e.toString());
+			e.printStackTrace();
 			throw e;
 		} finally {
-		//	System.out.print("yesJson==========\n"+friendsJson.getString("error"));
+			// System.out.print("yesJson==========\n"+friendsJson.getString("error"));
 			return friendsJson;
 		}
 	}
@@ -562,11 +592,20 @@ public class SingleUserAnalyse {
 			rtUsers.put("rtUserNum", rtUserNum);
 			rtUsers.put("rtUsers", rtUserArray);
 		} catch (WeiboException e) {
-			rtUsers.put("error", e.getError());
-			e.printStackTrace();
-			throw e;
+			int errorCode = e.getErrorCode();
+			if (errorCode == 10023) {// user limit
+				this.getAccessToken.ResetToken(this.tokenURL);
+				this.access_token = this.getAccessToken
+						.ReadToken(this.tokenURL);
+				rtUsers = this.getRtUser();
+			} else {
+				rtUsers.put("error", e.getError());
+				e.printStackTrace();
+				throw e;
+			}
 		} catch (Exception e) {
-			//e.getMessage() may return null,and e.toString() equals ObjectName:message
+			// e.getMessage() may return null,and e.toString() equals
+			// ObjectName:message
 			rtUsers.put("error", e.toString());
 			e.printStackTrace();
 			throw e;
@@ -594,7 +633,7 @@ public class SingleUserAnalyse {
 			if (this.status == null) {
 				this.getStatus(needStatusNum);
 			}
-			
+
 			Pattern namePatt = Pattern.compile("//@([^@:]*)(:|\\z)");
 			Map<String, UserCount> map = new HashMap<String, UserCount>();
 			for (Status s : status.getStatuses()) {
@@ -634,12 +673,12 @@ public class SingleUserAnalyse {
 			SortedUserQueue.addAll(map.values());
 
 			Map<String, User> myBiFriends = new HashMap<String, User>();
-			
+
 			for (User u : biFriends.getUsers()) {
 				myBiFriends.put(u.getScreenName(), u);
 			}
-			Map<String,User> myUniFriends=new HashMap<String,User>();
-			for(User u:this.uniFriends.getUsers()){
+			Map<String, User> myUniFriends = new HashMap<String, User>();
+			for (User u : this.uniFriends.getUsers()) {
 				myUniFriends.put(u.getScreenName(), u);
 			}
 			int topRtedAuthorNum = 10;
@@ -673,10 +712,10 @@ public class SingleUserAnalyse {
 					mem.put("rtedCount", uc.count);
 					uc.rtedCount = uc.count;
 					totalRtAuthorCount += uc.rtedCount;
-					if(myUniFriends.containsKey(uc.name)){
+					if (myUniFriends.containsKey(uc.name)) {
 						uc.friendType = 2;
-					}else{
-						uc.friendType=3;
+					} else {
+						uc.friendType = 3;
 					}
 					rtAuthorList.add(uc);
 					rtedAuthorNum += 1;
@@ -690,11 +729,20 @@ public class SingleUserAnalyse {
 			rtAuthors.put("rtedAuthorNum", rtedAuthorNum);
 			rtAuthors.put("rtAuthorArray", rtAuthorArray);
 		} catch (WeiboException e) {
-			rtAuthors.put("error", e.getError());
-			e.printStackTrace();
-			throw e;
+			int errorCode = e.getErrorCode();
+			if (errorCode == 10023) {// user limit
+				this.getAccessToken.ResetToken(this.tokenURL);
+				this.access_token = this.getAccessToken
+						.ReadToken(this.tokenURL);
+				rtAuthors = this.getRtAuthors();
+			} else {
+				rtAuthors.put("error", e.getError());
+				e.printStackTrace();
+				throw e;
+			}
 		} catch (Exception e) {
-			//e.getMessage() may return null,and e.toString() equals ObjectName:message
+			// e.getMessage() may return null,and e.toString() equals
+			// ObjectName:message
 			rtAuthors.put("error", e.toString());
 			e.printStackTrace();
 			throw e;
@@ -743,7 +791,7 @@ public class SingleUserAnalyse {
 			if (this.comUserList == null || this.repliedUserList == null) {
 				this.getComAndReplyUser();
 			}
-			
+
 			all.addAll(this.rtUserList);
 			all.addAll(this.comUserList);
 			all.addAll(this.rtAuthorList);
@@ -839,13 +887,23 @@ public class SingleUserAnalyse {
 			intimateUsers.put("totalRtAuthorCount", totalRtAuthorCount);
 			intimateUsers.put("users", intiUsers);
 		} catch (WeiboException e) {
-			System.out.print("initimate++++++weibo\n");
-			System.out.print("error:"+e.getError()+"toString:"+e.toString());
-			intimateUsers.put("error", e.getError());
-			e.printStackTrace();
+			int errorCode = e.getErrorCode();
+			if (errorCode == 10023) {// user limit
+				this.getAccessToken.ResetToken(this.tokenURL);
+				this.access_token = this.getAccessToken
+						.ReadToken(this.tokenURL);
+				intimateUsers = this.getIntimateUsers();
+			} else {
+				System.out.print("initimate++++++weibo\n");
+				System.out.print("error:" + e.getError() + "toString:"
+						+ e.toString());
+				intimateUsers.put("error", e.getError());
+				e.printStackTrace();
+			}
 		} catch (Exception e) {
 			System.out.print("initimate++++++Exception");
-			//e.getMessage() may return null,and e.toString() equals ObjectName:message
+			// e.getMessage() may return null,and e.toString() equals
+			// ObjectName:message
 			intimateUsers.put("error", e.toString());
 			e.printStackTrace();
 		} finally {
@@ -854,323 +912,366 @@ public class SingleUserAnalyse {
 
 	}
 
-	int num=0;
-	public int getNum(){
+	int num = 0;
+
+	public int getNum() {
 		num++;
 		return num;
 	}
 
-	private String washText(String text){
-		String shortLinkPat="(http:\\/\\/([\\w.]+\\/?)\\S*)";
-		String facePat="\\[.{1,3}\\]";//[]里不超过3个词，虽然很粗糙很不严谨，但是能用
-		
+	private String washText(String text) {
+		String shortLinkPat = "(http:\\/\\/([\\w.]+\\/?)\\S*)";
+		String facePat = "\\[.{1,3}\\]";// []里不超过3个词，虽然很粗糙很不严谨，但是能用
+
 		return text.replaceAll(shortLinkPat, "").replaceAll(facePat, "");
 	}
-	private String getTopics(String text){
-		String topics="";
-		Pattern topicPat=Pattern.compile("#([^#]+)#");
-		Matcher topicMat=topicPat.matcher(text);
-		while(topicMat.find()){
-			int start=topicMat.start(1);
-			int end =topicMat.end(1);
-			
-			topics+=text.substring(start, end)+"#";
-			//System.out.println(s.substring(0, start)+s.substring(end,s.length()));
+
+	private String getTopics(String text) {
+		String topics = "";
+		Pattern topicPat = Pattern.compile("#([^#]+)#");
+		Matcher topicMat = topicPat.matcher(text);
+		while (topicMat.find()) {
+			int start = topicMat.start(1);
+			int end = topicMat.end(1);
+
+			topics += text.substring(start, end) + "#";
+			// System.out.println(s.substring(0,
+			// start)+s.substring(end,s.length()));
 		}
 		return topics;
 	}
-	
-	public JSONObject getStatusIndexData() throws Exception{
-		//get status text first
-				if (this.status == null) {
-					this.getStatus(needStatusNum);
-				}
-				if (this.rtAuthorList == null) {
-					this.getRtAuthors();
-				}
-				Map<String, Integer> rtedAuthorMap = new HashMap<String, Integer>();
-				int totalRtedCount=0;
-				for(UserCount uc:this.rtAuthorList){
-					totalRtedCount+=uc.rtedCount;
-				}
-				System.out.println("=======totalRtedCount\n"+totalRtedCount);
-				for(UserCount uc:this.rtAuthorList){
-					int rtLevel=(int)(uc.rtedCount*1.0/totalRtedCount*10)/3+1;
-					System.out.println(uc.user.getScreenName()+"\t"+rtLevel);
-					rtedAuthorMap.put(uc.user.getId(),rtLevel);
-				}
-				
-				JSONObject statusData=new JSONObject();
-				JSONArray statusArray=new JSONArray();
-				
-				String originText=null;
-				String text=null;
-				int num=0;
-				for(Status s:this.status.getStatuses()){
-					num++;
-					JSONObject mem=new JSONObject();
-					String topics=null;
-					
-					text=s.getText();
-					text=this.washText(text);
-					mem.put("text", text);
-					topics=this.getTopics(text);
-					
-					mem.put("originText", "");
-					mem.put("rtLevel", 0);
-					Status originS = s.getRetweetedStatus();
-					if (originS != null) {
-						User author=originS.getUser();
-						mem.put("rtLevel", 1);
-						if(author!=null &&rtedAuthorMap.containsKey(author.getId())){
-							mem.put("rtLevel", rtedAuthorMap.get(author.getId()));
-						}
-						originText = originS.getText();
-						originText=this.washText(originText);
-						mem.put("originText",originText);
-						topics+=this.getTopics(originText);
-					}
-					mem.put("topics",topics);
-					statusArray.put(mem);
-				}
-				statusData.put("num", num);
-				statusData.put("array", statusArray);
-				return statusData;
-				
-	}
-	
-	
-	
-	public JSONObject getUsersIndexData() throws Exception{
-		
+
+	public JSONObject getStatusIndexData() throws Exception {
+		// get status text first
+		if (this.status == null) {
+			this.getStatus(needStatusNum);
+		}
 		if (this.rtAuthorList == null) {
 			this.getRtAuthors();
 		}
-		
-		JSONObject usersData=new JSONObject();
-		JSONArray usersArray=new JSONArray();
-		
-		
-		Map<String, UserCount> users = new HashMap<String, UserCount>();
-		users.put(this.centreUser.getId(), new UserCount(this.centreUser,0,-1));
-		for(User u:this.uniFriends.getUsers()){
-			users.put(u.getId(), new UserCount(u,0,2));//friendType=2 means uniFriend
+		Map<String, Integer> rtedAuthorMap = new HashMap<String, Integer>();
+		int totalRtedCount = 0;
+		for (UserCount uc : this.rtAuthorList) {
+			totalRtedCount += uc.rtedCount;
 		}
-		for(UserCount uc:this.rtAuthorList){
-			if(users.containsKey(uc.user.getId())){
-				users.get(uc.user.getId()).rtedCount=uc.rtedCount;
+		System.out.println("=======totalRtedCount\n" + totalRtedCount);
+		for (UserCount uc : this.rtAuthorList) {
+			int rtLevel = (int) (uc.rtedCount * 1.0 / totalRtedCount * 10) / 3 + 1;
+			System.out.println(uc.user.getScreenName() + "\t" + rtLevel);
+			rtedAuthorMap.put(uc.user.getId(), rtLevel);
+		}
+
+		JSONObject statusData = new JSONObject();
+		JSONArray statusArray = new JSONArray();
+
+		String originText = null;
+		String text = null;
+		int num = 0;
+		for (Status s : this.status.getStatuses()) {
+			num++;
+			JSONObject mem = new JSONObject();
+			String topics = null;
+
+			text = s.getText();
+			text = this.washText(text);
+			mem.put("text", text);
+			topics = this.getTopics(text);
+
+			mem.put("originText", "");
+			mem.put("rtLevel", 0);
+			Status originS = s.getRetweetedStatus();
+			if (originS != null) {
+				User author = originS.getUser();
+				mem.put("rtLevel", 1);
+				if (author != null && rtedAuthorMap.containsKey(author.getId())) {
+					mem.put("rtLevel", rtedAuthorMap.get(author.getId()));
+				}
+				originText = originS.getText();
+				originText = this.washText(originText);
+				mem.put("originText", originText);
+				topics += this.getTopics(originText);
+			}
+			mem.put("topics", topics);
+			statusArray.put(mem);
+		}
+		statusData.put("num", num);
+		statusData.put("array", statusArray);
+		return statusData;
+
+	}
+
+	public JSONObject getUsersIndexData() throws Exception {
+
+		if (this.rtAuthorList == null) {
+			this.getRtAuthors();
+		}
+
+		JSONObject usersData = new JSONObject();
+		JSONArray usersArray = new JSONArray();
+
+		Map<String, UserCount> users = new HashMap<String, UserCount>();
+		users.put(this.centreUser.getId(),
+				new UserCount(this.centreUser, 0, -1));
+		for (User u : this.uniFriends.getUsers()) {
+			users.put(u.getId(), new UserCount(u, 0, 2));// friendType=2 means
+															// uniFriend
+		}
+		for (UserCount uc : this.rtAuthorList) {
+			if (users.containsKey(uc.user.getId())) {
+				users.get(uc.user.getId()).rtedCount = uc.rtedCount;
 			}
 		}
-		
-		
-		ArrayList<String> uids=new ArrayList<String>();
-		for(String uid:users.keySet()){
+
+		ArrayList<String> uids = new ArrayList<String>();
+		for (String uid : users.keySet()) {
 			uids.add(uid);
 		}
-		Tags tm=new Tags();
+		Tags tm = new Tags();
 		tm.client.setToken(this.access_token);
-		ArrayList<TagWapper> result=null;
-		//try to get TagsBatch but the api limit of the max length of uids is 20
-		int limit=20;
-		int num=0;
-		while(num<uids.size()){
-			String s="";
-			for(int i=0;i<limit&&num<uids.size();i++){
-				s+=","+uids.get(num);
+		ArrayList<TagWapper> result = null;
+		// try to get TagsBatch but the api limit of the max length of uids is
+		// 20
+		int limit = 20;
+		int num = 0;
+		while (num < uids.size()) {
+			String s = "";
+			for (int i = 0; i < limit && num < uids.size(); i++) {
+				s += "," + uids.get(num);
 				num++;
 			}
-			s=s.substring(1);
-			result=tm.myGetTagsBatch(s);
-			for(int i=0;i<result.size();i++){
-				
-				JSONObject mem=new JSONObject();
-				JSONArray tags=new JSONArray();
-				
-				TagWapper userTags=result.get(i);
-				String id=userTags.getId();
+			s = s.substring(1);
+			result = tm.myGetTagsBatch(s);
+			for (int i = 0; i < result.size(); i++) {
+
+				JSONObject mem = new JSONObject();
+				JSONArray tags = new JSONArray();
+
+				TagWapper userTags = result.get(i);
+				String id = userTags.getId();
 				mem.put("id", id);
-				for(Tag t:userTags.getTags()){
+				for (Tag t : userTags.getTags()) {
 					tags.put(t.getValue());
 				}
 				mem.put("tags", tags);
-				assert users.containsKey(id):"in getUsersIndexData:the user with tags returned is not in the map";
-				UserCount uc=users.get(id);
+				assert users.containsKey(id) : "in getUsersIndexData:the user with tags returned is not in the map";
+				UserCount uc = users.get(id);
 				mem.put("name", uc.user.getScreenName());
 				mem.put("frinedType", uc.friendType);
 				mem.put("rtedCount", uc.rtedCount);
 				usersArray.put(mem);
-			}	
+			}
 		}
 		usersData.put("usersArray", usersArray);
 		return usersData;
-		
+
 	}
-	
-	
-	public JSONObject weightAdjust(JSONObject semiData) throws Exception{
-		JSONObject weightedData=new JSONObject();
-		
-		//process the status Data
-		int originWeight=1;
-		//int retweenWeight=2;
-		int topicWeight=3;
-		JSONArray semiStatus=semiData.getJSONObject("statusData").getJSONArray("array");
-		JSONArray weightedStatus=new JSONArray();
-		for(int i=0;i<semiStatus.length();i++){
-			JSONObject status=semiStatus.getJSONObject(i);
-			String text="";
-			
-			String str=status.getString("text");
-			for(int j=0;j<originWeight;j++){
-				text+=" "+str;
+
+	public JSONObject weightAdjust(JSONObject semiData) throws Exception {
+		JSONObject weightedData = new JSONObject();
+
+		// process the status Data
+		int originWeight = 1;
+		// int retweenWeight=2;
+		int topicWeight = 3;
+		JSONArray semiStatus = semiData.getJSONObject("statusData")
+				.getJSONArray("array");
+		JSONArray weightedStatus = new JSONArray();
+		for (int i = 0; i < semiStatus.length(); i++) {
+			JSONObject status = semiStatus.getJSONObject(i);
+			String text = "";
+
+			String str = status.getString("text");
+			for (int j = 0; j < originWeight; j++) {
+				text += " " + str;
 			}
-			str=status.getString("originText");
-			int rtLevel=status.getInt("rtLevel");
-			for(int j=0;j<rtLevel+1;j++){
-				text+=" "+str;
+			str = status.getString("originText");
+			int rtLevel = status.getInt("rtLevel");
+			for (int j = 0; j < rtLevel + 1; j++) {
+				text += " " + str;
 			}
-			str=status.getString("topic");
-			for(int j=0;j<topicWeight;j++){
-				text+=" "+str;
+			str = status.getString("topic");
+			for (int j = 0; j < topicWeight; j++) {
+				text += " " + str;
 			}
 			weightedStatus.put(text);
 		}
 		weightedData.put("statusData", weightedStatus);
-		//process the user info
-		
-		int centreWeight=5;
-		int uniFriendWeight=2;
-		int rtedWeight=1;
-		JSONArray semiUsers=semiData.getJSONObject("usersData").getJSONArray("usersArray");
-		JSONArray weightedUsers=new JSONArray();
-		for(int i=0;i<semiUsers.length();i++){
-			JSONObject userInfo=semiUsers.getJSONObject(i);
-			//calculate the total weight
-			int friendType=userInfo.getInt("frinedType");
-			int rtedCount=userInfo.getInt("rtedCount");	
-			int totalWeight=0;
-			
-			if(friendType==-1){
-				totalWeight+=centreWeight;
-			}else if(friendType==2){
-				totalWeight+=uniFriendWeight;
+		// process the user info
+
+		int centreWeight = 5;
+		int uniFriendWeight = 2;
+		int rtedWeight = 1;
+		JSONArray semiUsers = semiData.getJSONObject("usersData").getJSONArray(
+				"usersArray");
+		JSONArray weightedUsers = new JSONArray();
+		for (int i = 0; i < semiUsers.length(); i++) {
+			JSONObject userInfo = semiUsers.getJSONObject(i);
+			// calculate the total weight
+			int friendType = userInfo.getInt("frinedType");
+			int rtedCount = userInfo.getInt("rtedCount");
+			int totalWeight = 0;
+
+			if (friendType == -1) {
+				totalWeight += centreWeight;
+			} else if (friendType == 2) {
+				totalWeight += uniFriendWeight;
 			}
-			totalWeight+=rtedWeight*rtedCount;
-			
-			JSONArray tagsArray=userInfo.getJSONArray("tags");
-			String tags="";
-			for(int j=0;j<tagsArray.length();j++){
-				tags+=" "+tagsArray.getString(j);
+			totalWeight += rtedWeight * rtedCount;
+
+			JSONArray tagsArray = userInfo.getJSONArray("tags");
+			String tags = "";
+			for (int j = 0; j < tagsArray.length(); j++) {
+				tags += " " + tagsArray.getString(j);
 			}
-			
-			String text="";
-			for(int j=0;j<totalWeight;j++){
-				text+=" "+tags;
+
+			String text = "";
+			for (int j = 0; j < totalWeight; j++) {
+				text += " " + tags;
 			}
 			weightedUsers.put(text);
 		}
 		weightedData.put("userData", weightedUsers);
-		
+
 		return weightedData;
 	}
-	
+
 	/**
-	 * get data and preprocess it before give it to lucene to index
-	 * data include the user info and status text 
-	 * the weight of each field is varible
-	 * @prerequisite function getCentre-->(getStatus,getFriends)-->(getRtAuthors)
+	 * get data and preprocess it before give it to lucene to index data include
+	 * the user info and status text the weight of each field is varible
+	 * 
+	 * @prerequisite function
+	 *               getCentre-->(getStatus,getFriends)-->(getRtAuthors)
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public JSONObject getIndexData() throws Exception{
-		JSONObject indexData=new JSONObject();
-		//get status text first
-		JSONObject statusData=this.getStatusIndexData();
-		indexData.put("statusData", statusData);
-		
-		//get the user info
-		JSONObject usersData=this.getUsersIndexData();
-		indexData.put("usersData", usersData);
-		
-		indexData=this.weightAdjust(indexData);
-		return indexData;
-	}
-	
-	
-	
-	JSONObject interestKeywords=null;
-	public JSONObject getInterestKeywords(){
-		JSONObject interestKeywords=new JSONObject();
+	public JSONObject getIndexData() throws Exception {
+		JSONObject indexData = new JSONObject();
 		try {
-			JSONObject data=this.getIndexData();
-			
-			
+			// get status text first
+			JSONObject statusData = this.getStatusIndexData();
+			indexData.put("statusData", statusData);
+
+			// get the user info
+			JSONObject usersData = this.getUsersIndexData();
+			indexData.put("usersData", usersData);
+
+			indexData = this.weightAdjust(indexData);
+		} catch (WeiboException e) {
+			int errorCode = e.getErrorCode();
+			if (errorCode == 10023) {// user limit
+				this.getAccessToken.ResetToken(this.tokenURL);
+				this.access_token = this.getAccessToken
+						.ReadToken(this.tokenURL);
+				indexData = this.getIndexData();
+			} else {
+				System.out.print("getIndexData++++++weibo\n");
+				System.out.print("error:" + e.getError() + "toString:"
+						+ e.toString());
+				indexData.put("error", e.getError());
+				e.printStackTrace();
+				throw e;
+			}
+		} catch (Exception e) {
+			System.out.print("getIndexData++++++Exception");
+			// e.getMessage() may return null,and e.toString() equals
+			// ObjectName:message
+			indexData.put("error", e.toString());
+			e.printStackTrace();
+			throw e;
+		} finally {
+			return indexData;
+		}
+
+	}
+
+	JSONObject interestKeywords = null;
+
+	public JSONObject getInterestKeywords() {
+		JSONObject interestKeywords = new JSONObject();
+		try {
+			JSONObject data = this.getIndexData();
+
 		} catch (WeiboException e) {
 			System.out.print("getInterestKeywords++++++weibo\n");
-			System.out.print("error:"+e.getError()+"toString:"+e.toString());
+			System.out.print("error:" + e.getError() + "toString:"
+					+ e.toString());
 			interestKeywords.put("error", e.getError());
 			e.printStackTrace();
 		} catch (Exception e) {
 			System.out.print("getInterestKeywords++++++Exception");
-			//e.getMessage() may return null,and e.toString() equals ObjectName:message
+			// e.getMessage() may return null,and e.toString() equals
+			// ObjectName:message
 			interestKeywords.put("error", e.toString());
 			e.printStackTrace();
 		} finally {
 			return interestKeywords;
 		}
-		
+
 	}
-	public JSONObject getKeyWords() {
-		JSONObject semiData=null;
-		JSONObject keyWords=new JSONObject();
+
+	JSONObject keyWords = null;
+
+	public JSONObject getKeyWords() throws Exception {
+		JSONObject semiData = null;
+		if (keyWords != null && keyWords.length() != 0
+				&& !keyWords.has("error")) {
+			return keyWords;
+		}
+		keyWords = new JSONObject();
 		try {
 			semiData = this.getIndexData();
 			System.out.println("get semiData:+++++++++++++++");
 			System.out.println(semiData.toString());
-			LuceneAnalyser la=new LuceneAnalyser();
-			
-			keyWords=la.getKeyWords(semiData);
-		}  catch (WeiboException e) {
+			LuceneAnalyser la = new LuceneAnalyser();
+
+			keyWords = la.getKeyWords(semiData);
+		} catch (WeiboException e) {
 			System.out.print("getKeyWords++++++weibo\n");
 			System.out.print("error:" + e.getError() + "toString:"
 					+ e.toString());
 			keyWords.put("error", e.getError());
 			e.printStackTrace();
+			throw e;
 		} catch (Exception e) {
 			System.out.print("getKeyWords++++++Exception");
 			keyWords.put("error", e.toString());
 			e.printStackTrace();
+			throw e;
 		} finally {
 			return keyWords;
 		}
 
 	}
-	
+
 	// 方法之间有依赖关系，前3个方法(getCentreUser,getFriends,getStatus)必须先执行。
 	public static void main(String[] args) {
 		try {
 
-			PrintWriter Pout = new PrintWriter(new FileWriter(
-					"C:\\Users\\Edward\\Desktop\\test.txt"));
-			SingleUserAnalyse ts = new SingleUserAnalyse("1796533527", "胡新辰点点点");
-		//	ts.getCentreUser();// API一次 ts.getFriends();//API 1+好友数/count 次
-		//	ts.getFriends();
-		//	ts.getStatus(200);// API貌似一次100条，所以num/100
-		//	ts.getComAndReplyUser();// 看topComStatusNum,是几就取多少条微博的评论信息 ，就消耗几次api
-		//	ts.getRtUser();
-		//	ts.getRtAuthors();
+			// PrintWriter Pout = new PrintWriter(new FileWriter(
+			// "C:\\Users\\Edward\\Desktop\\test.txt"));
+			SingleUserAnalyse ts = new SingleUserAnalyse("1796533527",
+					"胡新辰点点点", "usr.txt");
+			// ts.getCentreUser();// API一次 ts.getFriends();//API 1+好友数/count 次
+			System.out.println(ts.getFriends());
+			// ts.getStatus(200);// API貌似一次100条，所以num/100
+			// ts.getComAndReplyUser();// 看topComStatusNum,是几就取多少条微博的评论信息
+			// ，就消耗几次api
+			// ts.getRtUser();
+			// ts.getRtAuthors();
 			// ts.json.put("rtUsers", ts.rtUsers);
 			// ts.json.put("comUsers",ts.comUsers);
 			// ts.json.put("rtAuthors", ts.rtAuthors);
 			// ts.json.put("repliedUsers", ts.repliedUsers);
-			JSONObject result = ts.getKeyWords();
-			//File input=new File("C:\\Users\\Edward\\Desktop\\semi.txt");
-			//JSONObject js=new JSONObject(new JSONTokener(new FileReader(input)));
-			//JSONObject result=ts.weightAdjust(js);
-			Pout.println(result.toString());
-			Pout.close();
-			
-			System.out.println("json object :" + result.toString());
+			// JSONObject result = ts.getKeyWords();
+			// File input = new File("C:\\Users\\Edward\\Desktop\\result.txt");
+			// JSONObject js = new JSONObject(new JSONTokener(
+			// new FileReader(input)));
+
+			// JSONObject result=ts.weightAdjust(js);
+			// Pout.println(result.toString());
+			// Pout.close();
+
+			// System.out.println("json object :" + result.toString());
 			// System.out.println("json object :" + json.toString());
 
 		} catch (Exception e) {

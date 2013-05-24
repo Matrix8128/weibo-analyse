@@ -32,15 +32,15 @@ public class LuceneAnalyser {
 
 	public LuceneAnalyser() {
 		super();
-		System.out.println("sucess?");	
 		
+
 		// TODO Auto-generated constructor stub
 	}
 
-	public LuceneAnalyser(String indexDir,String wekaFile) {
+	public LuceneAnalyser(String indexDir, String wekaFile) {
 		super();
-		this.indexDir=indexDir;
-		this.wekaFile=wekaFile;
+		this.indexDir = indexDir;
+		this.wekaFile = wekaFile;
 	}
 
 	public void buildIndex(JSONObject indexData) {
@@ -157,8 +157,10 @@ public class LuceneAnalyser {
 	PriorityQueue<MyTerm> sortedTermQueue = new PriorityQueue<MyTerm>(1,
 			MyTermCompare);
 
+	int maxFreq=0;
 	public void getIndexInfo(String indexdir, int freqThreshold) {
 		IndexReader reader = null;
+
 		try {
 			Directory dir = FSDirectory.open(new File(indexdir));
 			System.out.println(dir);
@@ -189,7 +191,7 @@ public class LuceneAnalyser {
 			System.out.println("mapsize:" + linkMap.keySet().size());
 			// System.exit(0);
 			int num = 0;
-
+			this.maxFreq=sortedTermQueue.peek().totalFreq;
 			while (!sortedTermQueue.isEmpty()) {
 				num++;
 				System.out.println(num + ":" + sortedTermQueue.poll());
@@ -200,6 +202,7 @@ public class LuceneAnalyser {
 		} finally {
 			try {
 				reader.close();
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -230,7 +233,7 @@ public class LuceneAnalyser {
 		Pout.println(text);
 		Pout.close();
 	}
-
+	
 	public JSONArray Cluster(String wekaFilePath, int clusterNum)
 			throws Exception {
 		File inputFile = new File(wekaFilePath);
@@ -250,6 +253,7 @@ public class LuceneAnalyser {
 
 		System.out.println("totalNum:" + insTest.numInstances());
 		System.out.println("============================");
+		System.out.println(sm.toString());
 		Map<Integer, ArrayList<String>> result = new HashMap<Integer, ArrayList<String>>();
 		for (int i = 0; i < clusterNum; i++) {
 			result.put(i, new ArrayList<String>());
@@ -327,17 +331,45 @@ public class LuceneAnalyser {
 		return keyWords;
 	}
 
+	private void myDelete(String path) throws Exception {
+		File f = new File(path);
+		if (!f.exists()) {
+			return ;
+		}
+		if (f.isDirectory()) {
+			if (f.listFiles().length == 0) {
+				f.delete();
+			} else {
+				File delFile[] = f.listFiles();
+				int i = delFile.length;
+				for (int j = 0; j < i; j++) {
+					if (delFile[j].isDirectory()) {
+						myDelete(delFile[j].getAbsolutePath());
+					} else {
+						delFile[j].delete();
+					}
+				}
+				f.delete();
+			}
+		} else {
+			f.delete();
+		}
+
+	}
+	@SuppressWarnings("finally")
 	public JSONObject getKeyWords(JSONObject semiData) {
 		JSONObject keyWords = new JSONObject();
+		
 		try {
 			this.buildIndex(semiData);
 			this.getIndexInfo(this.indexDir, 4);
 			this.generateWekaFile(this.termList, this.maxDocNum, this.wekaFile);
 			JSONArray array = this.Cluster(this.wekaFile, 7);
-			int totalNum=0;
-			for(int i=0;i<array.length();i++){
-				totalNum+=array.getJSONArray(i).length();
+			int totalNum = 0;
+			for (int i = 0; i < array.length(); i++) {
+				totalNum += array.getJSONArray(i).length();
 			}
+			keyWords.put("maxFreq",this.maxFreq);
 			keyWords.put("totalNum", totalNum);
 			keyWords.put("WordList", array);
 		} catch (WeiboException e) {
@@ -351,24 +383,29 @@ public class LuceneAnalyser {
 			keyWords.put("error", e.toString());
 			e.printStackTrace();
 		} finally {
+			try {
+				this.myDelete(this.indexDir);
+				this.myDelete(this.wekaFile);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			return keyWords;
 		}
 	}
 
-	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		SingleUserAnalyse sua = new SingleUserAnalyse("胡新辰点点点");
+		SingleUserAnalyse sua = new SingleUserAnalyse("胡新辰点点点","usr.txt");
 		LuceneAnalyser ts = new LuceneAnalyser();
 		try {
 			String semiFile = "C:\\Users\\Edward\\Desktop\\semi.txt";
 			String resultFile = "C:\\Users\\Edward\\Desktop\\result.txt";
-		//	PrintWriter Pout = new PrintWriter(new FileWriter(semiFile));
-			//JSONObject semiData = sua.getIndexData();
-		//	Pout.println(semiData.toString());
-		//	Pout.close();
+			// PrintWriter Pout = new PrintWriter(new FileWriter(semiFile));
+			// JSONObject semiData = sua.getIndexData();
+			// Pout.println(semiData.toString());
+			// Pout.close();
 
 			File input = new File(semiFile);
 			JSONObject js = new JSONObject(new JSONTokener(

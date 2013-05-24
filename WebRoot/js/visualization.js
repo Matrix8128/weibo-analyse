@@ -142,16 +142,19 @@ Visualization = function(info,workplace, canvasId) {
 		
 		
 		handleKeyWordsData: function(data){
-			sys.parameters({stiffness:200, repulsion:7000, gravity:true, dt:0.015,friction:0.3})
+			sys.parameters({stiffness:200, repulsion:10000, gravity:true, dt:0.015,friction:0.3})
 			var nodesData={}
 			var edgesData={}
+			var max=data.maxFreq
+			
+			var time=max/80
 			
 			$.each(data.WordList,function(index,array){
 				//nodesData[index]={mass:1,color:"red",dataType:data.dataType,type:"centre",text:index}
 				//edgesData[index]={};
-				words=[]
+				
 				$.each(array,function(i,word){
-					nodesData[word.text]={mass:10,color:"green",dataType:data.dataType,type:"keyWord",weight:word.freq,text:word.text}
+					nodesData[word.text]={mass:10,color:"green",dataType:data.dataType,type:"keyWord",weight:word.freq/time,text:word.text}
 					
 					/*edgesData[word.text]={}
 					$.each(words,function(j,text){

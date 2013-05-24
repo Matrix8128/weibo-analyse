@@ -48,7 +48,7 @@ var forTest2=null
 					<option value="relation">纯关系</option>
 					<option value="intimacy">亲密用户</option>
 					<option value="interest">兴趣图谱</option>
-					<option value="similarity">相似用户</option>
+					<!-- <option value="similarity">相似用户</option> -->
 
 					
 			</select></li>
