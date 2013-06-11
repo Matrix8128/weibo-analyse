@@ -35,7 +35,7 @@ public class SingleUserAnalyse {
 	/*
 	 * String id = "1796533527"; String name = "胡新辰点点点";
 	 */
-	String tokenURL = null;
+	public String tokenURL = null;
 	GetAccessToken getAccessToken = new GetAccessToken();
 	String id = null;
 	String name = null;
@@ -99,7 +99,7 @@ public class SingleUserAnalyse {
 	// 用户最新发布微博列表id
 	JSONObject userTimelineIds = null;
 	// 用户发布的微博列表
-	int needStatusNum = 200;// 需要获得微博数量
+	int needStatusNum = 300;// 需要获得微博数量
 	StatusWapper status = null;
 	// 按评论数量排序（降序）的微博列表
 	PriorityQueue<Status> comQueue = null;
@@ -1157,6 +1157,7 @@ public class SingleUserAnalyse {
 
 			indexData = this.weightAdjust(indexData);
 		} catch (WeiboException e) {
+			
 			int errorCode = e.getErrorCode();
 			if (errorCode == 10023) {// user limit
 				this.getAccessToken.ResetToken(this.tokenURL);
@@ -1182,6 +1183,28 @@ public class SingleUserAnalyse {
 			return indexData;
 		}
 
+	}
+
+	public String transToString(JSONObject semiData) {
+		String result = "";
+		JSONArray statusData;
+		try {
+			statusData = semiData.getJSONArray("statusData");
+
+			for (int i = 0; i < statusData.length(); i++) {
+				String text = statusData.getString(i);
+				result += " " + text;
+			}
+			JSONArray userData = semiData.getJSONArray("userData");
+			for (int i = 0; i < userData.length(); i++) {
+				String text = userData.getString(i);
+				result += " " + text;
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 	JSONObject interestKeywords = null;

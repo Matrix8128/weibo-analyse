@@ -148,13 +148,13 @@ Visualization = function(info,workplace, canvasId) {
 			var max=data.maxFreq
 			
 			var time=max/80
-			
+			//alert(time)
 			$.each(data.WordList,function(index,array){
 				//nodesData[index]={mass:1,color:"red",dataType:data.dataType,type:"centre",text:index}
 				//edgesData[index]={};
 				
 				$.each(array,function(i,word){
-					nodesData[word.text]={mass:10,color:"green",dataType:data.dataType,type:"keyWord",weight:word.freq/time,text:word.text}
+					nodesData[word.text]={mass:10,color:"green",dataType:data.dataType,type:"keyWord",weight:word.weight/time,text:word.text}
 					
 					/*edgesData[word.text]={}
 					$.each(words,function(j,text){
