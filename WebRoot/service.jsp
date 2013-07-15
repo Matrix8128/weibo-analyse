@@ -100,10 +100,10 @@
 				}
 			}
 		} else if (type.equals("interest")) {
-			json = (JSONObject) session.getAttribute(name + "-" + type);
+			//json = (JSONObject) session.getAttribute(name + "-" + type);
 			if (json == null) {
 				json = sua.getIndexData();
-				if(!json.has("error")){
+				if (!json.has("error")) {
 					String semidata = sua.transToString(json);
 					//String semidata="tests yes 导入停用词表，";
 					String id = sua.getId();
@@ -113,13 +113,14 @@
 						System.out.println("file name:"
 								+ srcFile.getAbsolutePath());
 						srcFile.createNewFile();
-	
-						PrintWriter Pout = new PrintWriter(new BufferedWriter(
-								new OutputStreamWriter(new FileOutputStream(
-										srcFile), "utf8")));
+
+						PrintWriter Pout = new PrintWriter(
+								new BufferedWriter(new OutputStreamWriter(
+										new FileOutputStream(srcFile),
+										"utf8")));
 						Pout.println(semidata);
 						Pout.close();
-	
+
 						Segment test = new Segment(segmentInitLib, "UTF8");
 						// 导入停用词表，第二个参数是停用词表文件编码，包中自带的是utf8编码。
 						test.importStopWords(chineseStopWord, "utf8");
@@ -128,34 +129,94 @@
 						// filter.add("url");
 						filter.add("x");
 						filter.add("n");
-						filter.add("vn");
+						filter.add("v");
 						test.setMinTermlength(2);
 						test.setTypeFilter(filter, true);
-	
-						File segmentedFile = new File(srcFile.getParentFile(),
-								id + "-segmentdFile");
+
+						File segmentedFile = new File(
+								srcFile.getParentFile(), id
+										+ "-segmentdFile");
 						System.out.println("segmenteing data......");
 						test.segmentFile(srcFile.getAbsolutePath(), "utf8",
 								segmentedFile.getAbsolutePath(), false);
 						test.segmentExit();
 						UserTopicModel utm = new UserTopicModel();
 						utm.loadInfer(new File(inferFile));
-						System.out.println("model loaded!");
+						System.out.println("infer loaded!");
 						json = utm.getKeyWord(segmentedFile);
-	
+						srcFile.delete();
+						segmentedFile.delete();
+
 					}
-	
+
 					if (!json.has("error")) {
 						json.put("dataType", "keywords");
 						session.setAttribute(name + "-" + type, json);
 					}
-	
+
 				}
 
 			}
 		} else if (type.equals("similarity")) {
 			json = (JSONObject) session.getAttribute(name + "-" + type);
 			if (json == null) {
+
+				json = sua.getIndexData();
+				if (!json.has("error")) {
+					String semidata = sua.transToString(json);
+					//String semidata="tests yes 导入停用词表，";
+					String id = sua.getId();
+					if (id != null) {
+						File srcFile = new File(absolutePath + "\\" + id
+								+ "-userData.txt");
+						System.out.println("file name:"
+								+ srcFile.getAbsolutePath());
+						srcFile.createNewFile();
+
+						PrintWriter Pout = new PrintWriter(
+								new BufferedWriter(new OutputStreamWriter(
+										new FileOutputStream(srcFile),
+										"utf8")));
+						Pout.println(semidata);
+						Pout.close();
+
+						Segment test = new Segment(segmentInitLib, "UTF8");
+						// 导入停用词表，第二个参数是停用词表文件编码，包中自带的是utf8编码。
+						test.importStopWords(chineseStopWord, "utf8");
+						test.importStopWords(englishStopWord, "utf8");
+						Set<String> filter = new HashSet<String>();
+						// filter.add("url");
+						filter.add("x");
+						filter.add("n");
+						filter.add("v");
+						test.setMinTermlength(2);
+						test.setTypeFilter(filter, true);
+
+						File segmentedFile = new File(
+								srcFile.getParentFile(),id
+										+ "-segmentdFile");
+						System.out.println("segmenteing data......");
+						test.segmentFile(srcFile.getAbsolutePath(), "utf8",
+								segmentedFile.getAbsolutePath(), false);
+						test.segmentExit();
+					/* 	UserTopicModel utm = new UserTopicModel();
+						/* File modelFile = new File(
+								"D:\\mallet-2.0.7\\13weibo-XNV\\weibo-XNV-removedLowFreq3-500.model");
+						utm.loadModel(modelFile); 
+						utm.loadInfer(new File("D:\\mallet-2.0.7\\13weibo-XNV\\weibo-XNV-reomved-500topic.infer"));
+						System.out.println("infer loaded!");
+						utm.getRecomUser(segmentedFile);
+						
+						*/
+
+					}
+
+					if (!json.has("error")) {
+						json.put("dataType", "keywords");
+						session.setAttribute(name + "-" + type, json);
+					}
+
+				}
 				json.put("error", "developing");
 				json.put("dataType", "similarity");
 				session.setAttribute(name + "-" + type, json);

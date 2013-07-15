@@ -19,6 +19,21 @@ import weka.clusterers.*;
 import weka.core.*;
 import weka.core.converters.*;
 
+class UserTopicAssignment implements Serializable {
+	public UserTopicAssignment(double[] topicProbabilities, String name,String label) {
+		super();
+		TopicProbabilities = topicProbabilities;
+		this.name = name;
+		this.label=label;
+	}
+	
+
+	int topicNum;
+	double[] TopicProbabilities;
+	String name;
+	String label;
+}
+
 public class UserTopicModel {
 
 	/**
@@ -54,30 +69,9 @@ public class UserTopicModel {
 		this.model = ParallelTopicModel.read(modleFile);
 		this.topicNum = this.model.numTopics;
 		this.dataAlphabet = this.model.getAlphabet();
+		this.infer = this.model.getInferencer();
 	}
 
-	/*
-	 * public UserTopicModel(File modleFile) throws Exception {
-	 * 
-	 * System.out.println("loading model...."); this.model =
-	 * ParallelTopicModel.read(modleFile); this.topicNum = this.model.numTopics;
-	 * this.dataAlphabet = this.model.getAlphabet();
-	 * 
-	 * // File inferFile=new File(modleFile.getParentFile(),"inferFile"); //
-	 * this.infer=this.model.getInferencer(); //
-	 * this.infer=TopicInferencer.read(modleFile);
-	 * 
-	 * try {
-	 * 
-	 * ObjectOutputStream oos = new ObjectOutputStream(new
-	 * FileOutputStream(inferFile)); oos.writeObject(infer); oos.close();
-	 * 
-	 * } catch (Exception e) { e.printStackTrace(); }
-	 * 
-	 * // this.topicNum=this.infer.numTopics; //
-	 * this.dataAlphabet=this.infer.alphabet; // this.model =
-	 * ParallelTopicModel.read(modleFile); }
-	 */
 	public String setUserData(JSONObject semiData) throws Exception {
 		this.userData = "";
 		JSONArray statusData = semiData.getJSONArray("statusData");
@@ -293,9 +287,10 @@ public class UserTopicModel {
 		insTest.deleteStringAttributes();
 		int totalNum = insTest.numInstances();
 
-		EM sm = new EM();
-		sm.setNumClusters(clusterNum);
-
+		EM em = new EM();
+		em.setNumClusters(clusterNum);
+		MakeDensityBasedClusterer sm = new MakeDensityBasedClusterer();
+		sm.setClusterer(em);
 		// sm.setClusterer(em);
 		sm.buildClusterer(insTest);
 
@@ -327,17 +322,35 @@ public class UserTopicModel {
 	}
 
 	class KeyWord {
-		public KeyWord(String text, double weight) {
+		public KeyWord(String text, double freq, double normalizedFreq) {
 			super();
+			this.text = text;
+			this.freq = freq;
+			this.normalizedFreq = normalizedFreq;
+		}
+
+		public KeyWord(String text, double weight) {
 			this.text = text;
 			this.weight = weight;
 		}
 
 		String text;
 		double weight;
+		double freq;
+		double normalizedFreq;
 		double entropy;
-		int cluster;
+		double normalizedEntropy;
+		Map<Integer, Integer> assign;
+
+		public double computeWeight() {
+			double ratio = 0.7;
+			this.weight = this.normalizedFreq * ratio + (1 - ratio)
+					* this.normalizedEntropy;
+			return this.weight;
+		}
 	}
+
+	Map<String, KeyWord> keyWordMap = new HashMap<String, KeyWord>();
 
 	PriorityQueue<KeyWord> sortedKeyWords = new PriorityQueue<KeyWord>(1,
 			new Comparator<KeyWord>() {
@@ -353,17 +366,12 @@ public class UserTopicModel {
 				}
 			});
 
-	public ArrayList<String> getHighEntropyWord(
-			Map<String, Map<Integer, Integer>> wordAssign, int topNum,
-			boolean print) throws Exception {
+	public ArrayList<String> getHighEntropyWord(int topNum, boolean print)
+			throws Exception {
 		ArrayList<String> result = new ArrayList<String>();
 		this.sortedKeyWords.clear();
-		for (String word : wordAssign.keySet()) {
-
-			double entropy = this.getWordsEntropy(wordAssign.get(word),
-					this.topicNum);
-			// System.out.println(entropy);
-			// wordEntropyMap.put(word, entropy);
+		for (String word : this.keyWordMap.keySet()) {
+			double entropy = this.keyWordMap.get(word).entropy;
 			this.sortedKeyWords.add(new KeyWord(word, entropy));
 		}
 		if (topNum < 0) {
@@ -374,7 +382,7 @@ public class UserTopicModel {
 			KeyWord kw = this.sortedKeyWords.poll();
 			if (print) {
 				System.out.println(kw.text + ":" + kw.weight);
-				Map<Integer, Integer> map = wordAssign.get(kw.text);
+				Map<Integer, Integer> map = this.keyWordMap.get(kw.text).assign;
 				for (int topic : map.keySet()) {
 					System.out.print(topic + ":" + map.get(topic) + "||");
 				}
@@ -385,6 +393,28 @@ public class UserTopicModel {
 		return result;
 	}
 
+	public ArrayList<String> getRemoveWords(int removeNum, boolean print) {
+		ArrayList<String> result = new ArrayList<String>();
+		this.sortedKeyWords.clear();
+		this.sortedKeyWords.addAll(this.keyWordMap.values());
+		int containNum = this.sortedKeyWords.size() - removeNum;
+		if (containNum < 0) {
+			containNum = 0;
+		}
+		while (!this.sortedKeyWords.isEmpty() && containNum > 0) {
+			containNum--;
+			this.sortedKeyWords.poll();
+		}
+		while (!this.sortedKeyWords.isEmpty()) {
+			KeyWord keyword = this.sortedKeyWords.poll();
+			System.out.println("(" + keyword.text + "," + keyword.freq + ","
+					+ keyword.entropy + "," + keyword.weight + ")");
+			result.add(keyword.text);
+		}
+		System.out.println("");
+		return result;
+	}
+
 	public JSONObject getKeyWord(File segmentedFile) throws Exception {
 
 		System.out.println("getting keywords...");
@@ -392,81 +422,359 @@ public class UserTopicModel {
 
 		// get hight freq words
 		MyRankedFeature mrf = new MyRankedFeature();
-		// mrf.getFreqRankVector(instances);
-		// int maxWordNum=500;
-		// int num = mrf.getTotalNum() > maxWordNum ? maxWordNum :
-		// mrf.getTotalNum();
-		// Map<String, Double> topK = mrf.getTopKMap(num, true);
 		Map<String, Double> topK = mrf.quickGetRemovedLowFreq(instances, 3,
 				false);
+		this.keyWordMap.clear();
+		double totalFreq = 0;
+		for (double freq : topK.values()) {
+			totalFreq += freq;
+		}
+		for (String word : topK.keySet()) {
+			double freq = topK.get(word);
+			this.keyWordMap
+					.put(word, new KeyWord(word, freq, freq / totalFreq));
+		}
+
 		// get word Assignment as feature for cluster
 		ArrayList<String> wordList = new ArrayList<String>();
 		wordList.addAll(topK.keySet());
 		Map<String, Map<Integer, Integer>> assign = this
 				.getWordAssignment(wordList);
 
-		// remove words with high Entropy
+		// get word entropy given the wordAssignment
+		for (String word : assign.keySet()) {
+			this.keyWordMap.get(word).assign = assign.get(word);
+			double entropy = this.getWordsEntropy(assign.get(word),
+					this.topicNum);
+			this.keyWordMap.get(word).entropy = entropy;
+		}
+
+		// normalize word entropy and compute the word weight
+		double totalEntropy = 0;
+		for (KeyWord kw : this.keyWordMap.values()) {
+			totalEntropy += kw.entropy;
+		}
+		for (String word : this.keyWordMap.keySet()) {
+			double entropy = this.keyWordMap.get(word).entropy;
+			this.keyWordMap.get(word).normalizedEntropy = -1
+					* (entropy / totalEntropy);
+			this.keyWordMap.get(word).computeWeight();
+		}
+
+		// remove words with low weight
+		int maxNum=500;
 		System.out.println("before:" + assign.size());
-		int removeNum = wordList.size() / 5;
-		ArrayList<String> highEntropyWords = this.getHighEntropyWord(assign,
-				removeNum, true);
-		for (String word : highEntropyWords) {
+		int removeNum = assign.size() > maxNum ? assign.size() - maxNum : assign
+				.size() / 20;
+		ArrayList<String> removeWords = this.getRemoveWords(removeNum, true);
+		for (String word : removeWords) {
+			this.keyWordMap.remove(word);
 			assign.remove(word);
 		}
-		
+
+		/**/
 		System.out.println("after:" + assign.size());
 
 		// cluster words with weka
 		JSONArray keyWordsList = new JSONArray();
-		double maxFreq = 0;
-		int clusterNum = 10;
+		double maxWeight = 0;
+		int clusterNum = 7;
+		int maxKeyWordNum = 70;
 		ArrayList<ArrayList<String>> clusterResult = this.wordCluster(assign,
 				this.topicNum, clusterNum);
-		// get the result ,every cluster provide certain protation of words
-		int totalNum = assign.size()/2>100?100:assign.size()/2;
-		double percent=totalNum*1.0/assign.size();
+		// get the result ,every cluster provide certain proportion of words
+		int totalNum = assign.size() / 2 > maxKeyWordNum ? maxKeyWordNum
+				: assign.size() / 2;
+		double percent = totalNum * 1.0 / assign.size();
 		for (int i = 0; i < clusterResult.size(); i++) {
 			ArrayList<String> list = clusterResult.get(i);
-			int getNum=(int) (list.size()*percent);
+			int getNum = (int) (list.size() * percent);
 			this.sortedKeyWords.clear();
 			for (String word : list) {
-				this.sortedKeyWords.add(new KeyWord(word, topK.get(word)));
+				this.sortedKeyWords.add(this.keyWordMap.get(word));
 			}
-			
+
 			JSONArray cluster = new JSONArray();
 			System.out.println("cluster" + i + ":");
 			int count = 0;
-			while (!this.sortedKeyWords.isEmpty() && getNum> 0) {
+			while (!this.sortedKeyWords.isEmpty() && getNum > 0) {
 				JSONObject mem = new JSONObject();
 				getNum--;
 				KeyWord keyword = this.sortedKeyWords.poll();
 				mem.put("text", keyword.text);
 				mem.put("weight", keyword.weight);
-				if (keyword.weight > maxFreq) {
-					maxFreq = keyword.weight;
+				if (keyword.weight > maxWeight) {
+					maxWeight = keyword.weight;
 				}
-				System.out.print("(" + keyword.text + "," + keyword.weight
-						+ ")");
+				System.out.print("(" + keyword.text + "," + keyword.freq + ","
+						+ keyword.entropy + "," + keyword.weight + ")");
 				cluster.put(mem);
 			}
 			System.out.println("");
 			keyWordsList.put(cluster);
 		}
 		JSONObject keyWords = new JSONObject();
-		keyWords.put("maxFreq", maxFreq);
+		keyWords.put("maxFreq", maxWeight);
 		keyWords.put("totalNum", totalNum);
 		keyWords.put("WordList", keyWordsList);
 		return keyWords;
+	}
+
+	public void SaveHotUserDistribution(File outFile) throws Exception,
+			FileNotFoundException {
+
+		ArrayList<TopicAssignment> assigns = model.getData();
+		System.out.println("instanceNum:" + assigns.size());
+		ArrayList<UserTopicAssignment> utaList = new ArrayList<UserTopicAssignment>();
+		for (int i = 0; i < assigns.size(); i++) {
+			TopicAssignment ta = assigns.get(i);
+			cc.mallet.types.Instance ins = ta.instance;
+			System.out.println(i + "============");
+			String source = ins.getSource().toString();
+			
+			String name = source.substring(source.lastIndexOf("\\") + 1);
+			name = name.replaceAll(".txt$|.TXT$", "");
+			utaList.add(new UserTopicAssignment(model.getTopicProbabilities(i),
+					name,ins.getTarget().toString()));
+			// name=name.split(".txt||")
+			System.out.println("name:" + name + "\tsource:" + ins.getSource()
+					+ "\ttarget:" + ins.getTarget());
+			System.out.println("labeling:" + ta.topicDistribution);
+			for (double p : model.getTopicProbabilities(i)) {
+				System.out.print(p + ",");
+			}
+			System.out.println("");
+
+		}
+		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(
+				outFile));
+		oos.writeObject(utaList);
+		oos.close();
+
+	}
+
+	public ArrayList<UserTopicAssignment> loadUserTopicDis(File utdFile)
+			throws Exception {
+
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(
+				utdFile));
+		ArrayList<UserTopicAssignment> utaList = (ArrayList<UserTopicAssignment>) in
+				.readObject();
+
+		/*
+		 * for (UserTopicAssignment uta : utaList) {
+		 * System.out.println("=====================");
+		 * System.out.println(uta.name);
+		 * System.out.println(uta.TopicProbabilities.length); for (double p :
+		 * uta.TopicProbabilities) { System.out.print(p + ","); }
+		 * System.out.println(""); }
+		 */
+		return utaList;
+	}
+
+	public double[] getTopicDistribution(cc.mallet.types.Instance instance) {
+		// use the default setting in InferTopics.java
+		int numIterations = 100;
+		int thinning = 10;
+		int burnIn = 10;
+		int threshold = 0;
+		int max = -1;
+
+		double[] topicDistribution = this.infer.getSampledDistribution(
+				instance, numIterations, thinning, burnIn);
+
+		return topicDistribution;
+	}
+
+	public ArrayList<ArrayList<String>> UserCluster(
+			Map<String, Map<Integer, Double>> userAssignment, int topicNum,
+			int clusterNum) throws Exception {
+
+		ArrayList<ArrayList<String>> result = new ArrayList<ArrayList<String>>();
+		String text = "@relation userCluster\n";
+		text += "@attribute user String\n";
+		for (int i = 0; i < topicNum; i++) {
+			text += "@attribute topic" + i + "\t real\n";
+		}
+		text += "@data\n";
+
+		for (String user : userAssignment.keySet()) {
+
+			Map<Integer, Double> map = userAssignment.get(user);
+			if (map == null) {
+				System.out.println("sorry the user " + user + " does't exist");
+				continue;
+			}
+			double[] assign = new double[topicNum];
+			for (int index : map.keySet()) {
+				assign[index] = map.get(index);
+			}
+			String line = "";
+			line += user;
+			for (int i = 0; i < assign.length; i++) {
+				line += "," + assign[i];
+			}
+			line += "\n";
+			text += line;
+		}
+		File wekaFile = new File("userClusterWeka.arff");
+
+		PrintWriter Pout = new PrintWriter(new FileWriter(wekaFile));
+		Pout.println(text);
+		Pout.close();
+
+		ArffLoader arf = new ArffLoader();
+		arf.setFile(wekaFile);
+		Instances originIns = arf.getDataSet();
+		Instances insTest = new Instances(originIns);
+		insTest.deleteStringAttributes();
+		int totalNum = insTest.numInstances();
+
+		EM em = new EM();
+		em.setNumClusters(clusterNum);
+		MakeDensityBasedClusterer sm = new MakeDensityBasedClusterer();
+		sm.setClusterer(em);
+		// sm.setClusterer(em);
+		sm.buildClusterer(insTest);
+
+		System.out.println("totalNum:" + insTest.numInstances());
+		System.out.println("============================");
+		// System.out.println(sm.toString());
+		for (int i = 0; i < clusterNum; i++) {
+			result.add(new ArrayList<String>());
+		}
+		for (int i = 0; i < totalNum; i++) {
+			weka.core.Instance ins = originIns.instance(i);
+			String word = ins.stringValue(0);
+			weka.core.Instance tempIns = new weka.core.Instance(ins);
+			tempIns.deleteAttributeAt(0);
+			int cluster = sm.clusterInstance(tempIns);
+			result.get(cluster).add(word);
+		}
+		// show the result
+		for (int i = 0; i < clusterNum; i++) {
+			ArrayList<String> list = result.get(i);
+			System.out.print("cluster " + i + ":");
+			for (String word : list) {
+				System.out.print("(" + word+"),");
+			}
+			System.out.print("\n");
+		}
+		wekaFile.delete();
+		return result;
+	}
+
+	public double getEucliDistance(double[] x, double[] y) throws Exception {
+		double distance = 0;
+
+		if (x.length != y.length) {
+			System.out.println("x:" + x.length + ",y:" + y.length);
+			throw new Exception("x and y don't have the same  length");
+		}
+		for (int i = 0; i < x.length; i++) {
+			distance += Math.pow(x[i] - y[i], 2);
+		}
+		distance = Math.sqrt(distance);
+		return distance;
+	}
+
+	class RecomUser {
+		String name;
+		double distance;
+
+		public RecomUser(String name, double distance) {
+			super();
+			this.name = name;
+			this.distance = distance;
+		}
+
+		double score;
+	}
+
+	PriorityQueue<RecomUser> RecomUserQueue = new PriorityQueue<RecomUser>(1,
+			new Comparator<RecomUser>() {
+				@Override
+				public int compare(RecomUser o1, RecomUser o2) {
+					if (o1.distance > o2.distance) {
+						return 1;
+					} else if (o1.distance < o2.distance) {
+						return -1;
+					} else {
+						return 0;
+					}
+				}
+			});
+
+	public void getRecomUser(File segmentedFile) throws Exception {
+		System.out.println("getting Recom users");
+		InstanceList instances = this.getInstanceList(segmentedFile);
+
+		if (instances.size() != 1) {
+			throw new Exception("size of instance is not 1");
+		}
+		double[] userTopicDis = this.getTopicDistribution(instances.get(0));
+		ArrayList<UserTopicAssignment> utaList = this
+				.loadUserTopicDis(new File(
+						"C:\\Users\\Edward\\Desktop\\userAssignment"));
+
+		RecomUserQueue.clear();
+		for (int i = 0; i < utaList.size(); i++) {
+			UserTopicAssignment uta = utaList.get(i);
+			double distance = this.getEucliDistance(userTopicDis,
+					uta.TopicProbabilities);
+			String name = uta.name;
+
+			RecomUserQueue.add(new RecomUser(name, distance));
+		}
+
+		int rank = 50;
+		while (!RecomUserQueue.isEmpty() && rank > 0) {
+			rank--;
+			RecomUser ru = RecomUserQueue.poll();
+			System.out.println(ru.name + ":\t" + ru.distance);
+		}
+	}
+
+	public void findUserCommunity(int commNum) throws Exception {
+		ArrayList<UserTopicAssignment> utaList = this
+				.loadUserTopicDis(new File(
+						"C:\\Users\\Edward\\Desktop\\userAssignment"));
+		Map<String, Map<Integer, Double>> userAssignment = new HashMap<String, Map<Integer, Double>>();
+		for (int i = 0; i < utaList.size(); i++) {
+			UserTopicAssignment uta = utaList.get(i);
+			String name = uta.name;
+			String label=uta.label;
+			Map<Integer, Double> assign = new HashMap<Integer, Double>();
+			for (int j = 0; j < uta.TopicProbabilities.length; j++) {
+				assign.put(j, uta.TopicProbabilities[j]);
+			}
+			userAssignment.put(name+"["+label+"]", assign);
+		}
+		this.UserCluster(userAssignment, this.topicNum, commNum);
 	}
 
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		long start = System.currentTimeMillis();
 		UserTopicModel utm = new UserTopicModel();
-		utm.loadModel(new File(
-				"D:\\apache-tomcat-7.0.37\\webapps\\weibo-analyse\\resource\\weibo-XNV-removedLowFreq3-2000.model"));
-		/*utm.loadInfer(new File(
-				"D:\\apache-tomcat-7.0.37\\webapps\\weibo-analyse\\infer"));*/
+		File modelFile = new File(
+				"D:\\mallet-2.0.7\\13weibo-XNV\\weibo-XNV-removedLowFreq3-500.model");
+		utm.loadModel(modelFile);
+		// utm.SaveHotUserDistribution(new File("C:\\Users\\Edward\\Desktop\\userAssignment"));
+		// utm.loadInfer(new
+		// File("D:\\apache-tomcat-7.0.37\\webapps\\weibo-analyse\\resource\\weibo-XNV-removedLowFreq3-2000.infer"));
+		/*utm.getRecomUser(new File(
+				"D:\\mallet-2.0.7\\14AllCorpus\\train-segmented-data\\art\\JASON贾川.txt"));*/
+		utm.findUserCommunity(50);
+		/*
+		 * utm.loadModel(new File(
+		 * "D:\\apache-tomcat-7.0.37\\webapps\\weibo-analyse\\resource\\weibo-XNV-removedLowFreq3-2000.model"
+		 * ));
+		 */
+		/*
+		 * utm.loadInfer(new File(
+		 * "D:\\apache-tomcat-7.0.37\\webapps\\weibo-analyse\\infer"));
+		 */
 		/*
 		 * File srcFile = new File("C:\\Users\\Edward\\Desktop\\work\\周鸿祎.txt");
 		 * 
@@ -486,23 +794,19 @@ public class UserTopicModel {
 		 * test.segmentFile(srcFile.getAbsolutePath(),
 		 * "utf8",segmentedFile.getAbsolutePath(), false);
 		 */
-	//	utm.infer=utm.model.getInferencer();
-		//File inferFile=new File("D:\\apache-tomcat-7.0.37\\webapps\\weibo-analyse\\infer-2000");
-	/*	try {
+		// utm.infer=utm.model.getInferencer();
+		// File inferFile=new
+		// File("D:\\apache-tomcat-7.0.37\\webapps\\weibo-analyse\\infer-2000");
+		/*
+		 * try {
+		 * 
+		 * ObjectOutputStream oos = new ObjectOutputStream( new
+		 * FileOutputStream(inferFile)); oos.writeObject(utm.infer);
+		 * oos.close();
+		 * 
+		 * } catch (Exception e) { e.printStackTrace(); }
+		 */
 
-			ObjectOutputStream oos = new ObjectOutputStream(
-					new FileOutputStream(inferFile));
-			oos.writeObject(utm.infer);
-			oos.close();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
-		System.out.println("segmente time:"
-				+ (System.currentTimeMillis() - start) / 1000);
-		// utm.getKeyWord(segmentedFile);
-		utm.getKeyWord(new File(
-				"D:\\apache-tomcat-7.0.37\\webapps\\weibo-analyse\\1796533527-segmentdFile"));
 		System.out.println((System.currentTimeMillis() - start) / 1000);
 	}
 

@@ -1,2 +1,276 @@
-0    DEBUG [2013-05-24 12:47:27]  Request:
-2    DEBUG [2013-05-24 12:47:27]  GET:https://api.weibo.com/2/users/show.json
+717  DEBUG [2013-07-04 16:20:16]  Request:
+717  DEBUG [2013-07-04 16:20:16]  GET:https://api.weibo.com/2/friendships/friends/bilateral/ids.json
+719  DEBUG [2013-07-04 16:20:16]  Authorization: OAuth2 2.008w7_4DN7usfCb590e9250eeEUviB
+719  DEBUG [2013-07-04 16:20:16]  API-RemoteIP: 10.10.255.62
+788  DEBUG [2013-07-04 16:20:16]  Response:
+788  DEBUG [2013-07-04 16:20:16]  https StatusCode:200
+789  DEBUG [2013-07-04 16:20:16]  Server:nginx/1.2.0
+789  DEBUG [2013-07-04 16:20:16]  Date:Thu, 04 Jul 2013 08:20:58 GMT
+789  DEBUG [2013-07-04 16:20:16]  Content-Type:application/json;charset=UTF-8
+789  DEBUG [2013-07-04 16:20:16]  Content-Length:129
+789  DEBUG [2013-07-04 16:20:16]  Connection:keep-alive
+789  DEBUG [2013-07-04 16:20:16]  Api-Server-IP:10.77.108.37
+789  DEBUG [2013-07-04 16:20:16]  Vary:Accept-Encoding
+789  DEBUG [2013-07-04 16:20:16]  X-Varnish:1040886867
+790  DEBUG [2013-07-04 16:20:16]  Age:0
+790  DEBUG [2013-07-04 16:20:16]  Via:1.1 varnish
+790  DEBUG [2013-07-04 16:20:16]  SINA-LB:cWgxMzIuaGEucWgyLmJqLmxvYWRiYWxhbmNlLnNpbg==
+790  DEBUG [2013-07-04 16:20:16]  {"error":"request uid's value must be the current user","error_code":21335,"request":"/2/friendships/friends/bilateral/ids.json"}
+
+790  DEBUG [2013-07-04 16:20:16]  Request:
+791  DEBUG [2013-07-04 16:20:16]  GET:https://api.weibo.com/2/friendships/friends.json
+792  DEBUG [2013-07-04 16:20:16]  Authorization: OAuth2 2.008w7_4DN7usfCb590e9250eeEUviB
+792  DEBUG [2013-07-04 16:20:16]  API-RemoteIP: 10.10.255.62
+822  DEBUG [2013-07-04 16:20:16]  Response:
+822  DEBUG [2013-07-04 16:20:16]  https StatusCode:200
+822  DEBUG [2013-07-04 16:20:16]  Server:nginx/1.2.0
+822  DEBUG [2013-07-04 16:20:16]  Date:Thu, 04 Jul 2013 08:20:58 GMT
+822  DEBUG [2013-07-04 16:20:16]  Content-Type:application/json;charset=UTF-8
+822  DEBUG [2013-07-04 16:20:16]  Content-Length:115
+823  DEBUG [2013-07-04 16:20:16]  Connection:keep-alive
+823  DEBUG [2013-07-04 16:20:16]  Api-Server-IP:10.77.108.49
+823  DEBUG [2013-07-04 16:20:16]  Vary:Accept-Encoding
+823  DEBUG [2013-07-04 16:20:16]  X-Varnish:1007994187
+823  DEBUG [2013-07-04 16:20:16]  Age:0
+823  DEBUG [2013-07-04 16:20:16]  Via:1.1 varnish
+823  DEBUG [2013-07-04 16:20:16]  SINA-LB:cWgxMzIuaGEucWgyLmJqLmxvYWRiYWxhbmNlLnNpbg==
+824  DEBUG [2013-07-04 16:20:16]  {"error":"request uid's value must be the current user","error_code":21335,"request":"/2/friendships/friends.json"}
+
+0    DEBUG [2013-07-04 16:21:00]  Request:
+2    DEBUG [2013-07-04 16:21:00]  GET:https://api.weibo.com/2/users/show.json
+76   DEBUG [2013-07-04 16:21:00]  Authorization: OAuth2 2.008w7_4DN7usfCb590e9250eeEUviB
+77   DEBUG [2013-07-04 16:21:00]  API-RemoteIP: 10.10.255.62
+687  DEBUG [2013-07-04 16:21:01]  Response:
+687  DEBUG [2013-07-04 16:21:01]  https StatusCode:200
+687  DEBUG [2013-07-04 16:21:01]  Server:nginx/1.2.0
+688  DEBUG [2013-07-04 16:21:01]  Date:Thu, 04 Jul 2013 08:21:43 GMT
+688  DEBUG [2013-07-04 16:21:01]  Content-Type:application/json;charset=UTF-8
+688  DEBUG [2013-07-04 16:21:01]  Content-Length:1392
+688  DEBUG [2013-07-04 16:21:01]  Connection:keep-alive
+688  DEBUG [2013-07-04 16:21:01]  Api-Server-IP:10.77.108.39
+689  DEBUG [2013-07-04 16:21:01]  Vary:Accept-Encoding
+689  DEBUG [2013-07-04 16:21:01]  X-Varnish:1041000408
+689  DEBUG [2013-07-04 16:21:01]  Age:0
+689  DEBUG [2013-07-04 16:21:01]  Via:1.1 varnish
+690  DEBUG [2013-07-04 16:21:01]  SINA-LB:cWgxMzIuaGEucWgyLmJqLmxvYWRiYWxhbmNlLnNpbg==
+699  DEBUG [2013-07-04 16:21:01]  {"id":1796533527,"idstr":"1796533527","class":1,"screen_name":"胡新辰点点点","name":"胡新辰点点点","province":"23","city":"1","location":"黑龙江 哈尔滨","description":"","url":"","profile_image_url":"http://tp4.sinaimg.cn/1796533527/50/22837500912/1","profile_url":"u/1796533527","domain":"","weihao":"","gender":"m","followers_count":69,"friends_count":153,"statuses_count":177,"favourites_count":78,"created_at":"Mon Aug 16 21:36:14 +0800 2010","following":false,"allow_all_act_msg":false,"geo_enabled":false,"verified":false,"verified_type":-1,"remark":"","status":{"created_at":"Sat Jun 29 23:35:12 +0800 2013","id":3594672251588246,"mid":"3594672251588246","idstr":"3594672251588246","text":"相当刺激的反恐剧，堪比24小时，就是缩写有点雷。。。SB3。。。。","source":"<a href=\"http://app.weibo.com/t/feed/3rcs3o\" rel=\"nofollow\">WeicoPro.HD</a>","favorited":false,"truncated":false,"in_reply_to_status_id":"","in_reply_to_user_id":"","in_reply_to_screen_name":"","pic_urls":[],"geo":null,"reposts_count":0,"comments_count":0,"attitudes_count":0,"mlevel":0,"visible":{"type":0,"list_id":0}},"allow_all_comment":false,"avatar_large":"http://tp4.sinaimg.cn/1796533527/180/22837500912/1","avatar_hd":"","verified_reason":"","follow_me":false,"online_status":0,"bi_followers_count":27,"lang":"zh-cn","star":0,"mbtype":0,"mbrank":0,"block_word":0}
+
+710  DEBUG [2013-07-04 16:21:01]  Request:
+710  DEBUG [2013-07-04 16:21:01]  GET:https://api.weibo.com/2/friendships/friends/bilateral/ids.json
+711  DEBUG [2013-07-04 16:21:01]  Authorization: OAuth2 2.008w7_4DN7usfCb590e9250eeEUviB
+712  DEBUG [2013-07-04 16:21:01]  API-RemoteIP: 10.10.255.62
+781  DEBUG [2013-07-04 16:21:01]  Response:
+782  DEBUG [2013-07-04 16:21:01]  https StatusCode:200
+782  DEBUG [2013-07-04 16:21:01]  Server:nginx/1.2.0
+782  DEBUG [2013-07-04 16:21:01]  Date:Thu, 04 Jul 2013 08:21:44 GMT
+782  DEBUG [2013-07-04 16:21:01]  Content-Type:application/json;charset=UTF-8
+782  DEBUG [2013-07-04 16:21:01]  Content-Length:129
+783  DEBUG [2013-07-04 16:21:01]  Connection:keep-alive
+783  DEBUG [2013-07-04 16:21:01]  Api-Server-IP:10.77.108.40
+783  DEBUG [2013-07-04 16:21:01]  Vary:Accept-Encoding
+783  DEBUG [2013-07-04 16:21:01]  X-Varnish:317391821
+784  DEBUG [2013-07-04 16:21:01]  Age:0
+784  DEBUG [2013-07-04 16:21:01]  Via:1.1 varnish
+784  DEBUG [2013-07-04 16:21:01]  SINA-LB:cWgxMzIuaGEucWgyLmJqLmxvYWRiYWxhbmNlLnNpbg==
+784  DEBUG [2013-07-04 16:21:01]  {"error":"request uid's value must be the current user","error_code":21335,"request":"/2/friendships/friends/bilateral/ids.json"}
+
+785  DEBUG [2013-07-04 16:21:01]  Request:
+785  DEBUG [2013-07-04 16:21:01]  GET:https://api.weibo.com/2/friendships/friends.json
+789  DEBUG [2013-07-04 16:21:01]  Authorization: OAuth2 2.008w7_4DN7usfCb590e9250eeEUviB
+789  DEBUG [2013-07-04 16:21:01]  API-RemoteIP: 10.10.255.62
+822  DEBUG [2013-07-04 16:21:01]  Response:
+823  DEBUG [2013-07-04 16:21:01]  https StatusCode:200
+823  DEBUG [2013-07-04 16:21:01]  Server:nginx/1.2.0
+823  DEBUG [2013-07-04 16:21:01]  Date:Thu, 04 Jul 2013 08:21:44 GMT
+823  DEBUG [2013-07-04 16:21:01]  Content-Type:application/json;charset=UTF-8
+823  DEBUG [2013-07-04 16:21:01]  Content-Length:115
+825  DEBUG [2013-07-04 16:21:01]  Connection:keep-alive
+825  DEBUG [2013-07-04 16:21:01]  Api-Server-IP:10.77.108.37
+825  DEBUG [2013-07-04 16:21:01]  Vary:Accept-Encoding
+826  DEBUG [2013-07-04 16:21:01]  X-Varnish:625958927
+827  DEBUG [2013-07-04 16:21:01]  Age:0
+828  DEBUG [2013-07-04 16:21:01]  Via:1.1 varnish
+828  DEBUG [2013-07-04 16:21:01]  SINA-LB:cWgxMzIuaGEucWgyLmJqLmxvYWRiYWxhbmNlLnNpbg==
+828  DEBUG [2013-07-04 16:21:01]  {"error":"request uid's value must be the current user","error_code":21335,"request":"/2/friendships/friends.json"}
+
+0    DEBUG [2013-07-04 16:30:40]  Request:
+1    DEBUG [2013-07-04 16:30:40]  GET:https://api.weibo.com/2/users/show.json
+1    DEBUG [2013-07-04 16:31:12]  Request:
+2    DEBUG [2013-07-04 16:31:12]  GET:https://api.weibo.com/2/users/show.json
+0    DEBUG [2013-07-04 16:32:09]  Request:
+1    DEBUG [2013-07-04 16:32:09]  GET:https://api.weibo.com/2/users/show.json
+0    DEBUG [2013-07-04 16:32:24]  Request:
+1    DEBUG [2013-07-04 16:32:24]  GET:https://api.weibo.com/2/users/show.json
+0    DEBUG [2013-07-04 16:33:00]  Request:
+1    DEBUG [2013-07-04 16:33:00]  GET:https://api.weibo.com/2/users/show.json
+71   DEBUG [2013-07-04 16:33:00]  Authorization: OAuth2 2.008w7_4DN7usfCb590e9250eeEUviB
+71   DEBUG [2013-07-04 16:33:00]  API-RemoteIP: 10.10.255.62
+2073 DEBUG [2013-07-04 16:33:02]  Response:
+2074 DEBUG [2013-07-04 16:33:02]  https StatusCode:200
+2074 DEBUG [2013-07-04 16:33:02]  Server:nginx/1.2.0
+2074 DEBUG [2013-07-04 16:33:02]  Date:Thu, 04 Jul 2013 08:33:56 GMT
+2074 DEBUG [2013-07-04 16:33:02]  Content-Type:application/json;charset=UTF-8
+2075 DEBUG [2013-07-04 16:33:02]  Content-Length:1392
+2075 DEBUG [2013-07-04 16:33:02]  Connection:keep-alive
+2075 DEBUG [2013-07-04 16:33:02]  Api-Server-IP:10.77.108.56
+2075 DEBUG [2013-07-04 16:33:02]  Vary:Accept-Encoding
+2075 DEBUG [2013-07-04 16:33:02]  X-Varnish:1042824038
+2076 DEBUG [2013-07-04 16:33:02]  Age:0
+2076 DEBUG [2013-07-04 16:33:02]  Via:1.1 varnish
+2076 DEBUG [2013-07-04 16:33:02]  SINA-LB:cWgxMzIuaGEucWgyLmJqLmxvYWRiYWxhbmNlLnNpbg==
+2227 DEBUG [2013-07-04 16:33:02]  {"id":1796533527,"idstr":"1796533527","class":1,"screen_name":"胡新辰点点点","name":"胡新辰点点点","province":"23","city":"1","location":"黑龙江 哈尔滨","description":"","url":"","profile_image_url":"http://tp4.sinaimg.cn/1796533527/50/22837500912/1","profile_url":"u/1796533527","domain":"","weihao":"","gender":"m","followers_count":69,"friends_count":153,"statuses_count":177,"favourites_count":78,"created_at":"Mon Aug 16 21:36:14 +0800 2010","following":false,"allow_all_act_msg":false,"geo_enabled":false,"verified":false,"verified_type":-1,"remark":"","status":{"created_at":"Sat Jun 29 23:35:12 +0800 2013","id":3594672251588246,"mid":"3594672251588246","idstr":"3594672251588246","text":"相当刺激的反恐剧，堪比24小时，就是缩写有点雷。。。SB3。。。。","source":"<a href=\"http://app.weibo.com/t/feed/3rcs3o\" rel=\"nofollow\">WeicoPro.HD</a>","favorited":false,"truncated":false,"in_reply_to_status_id":"","in_reply_to_user_id":"","in_reply_to_screen_name":"","pic_urls":[],"geo":null,"reposts_count":0,"comments_count":0,"attitudes_count":0,"mlevel":0,"visible":{"type":0,"list_id":0}},"allow_all_comment":false,"avatar_large":"http://tp4.sinaimg.cn/1796533527/180/22837500912/1","avatar_hd":"","verified_reason":"","follow_me":false,"online_status":0,"bi_followers_count":27,"lang":"zh-cn","star":0,"mbtype":0,"mbrank":0,"block_word":0}
+
+2245 DEBUG [2013-07-04 16:33:02]  Request:
+2245 DEBUG [2013-07-04 16:33:02]  GET:https://api.weibo.com/2/friendships/friends/bilateral/ids.json
+2246 DEBUG [2013-07-04 16:33:02]  Authorization: OAuth2 2.008w7_4DN7usfCb590e9250eeEUviB
+2247 DEBUG [2013-07-04 16:33:02]  API-RemoteIP: 10.10.255.62
+2320 DEBUG [2013-07-04 16:33:02]  Response:
+2320 DEBUG [2013-07-04 16:33:02]  https StatusCode:200
+2320 DEBUG [2013-07-04 16:33:02]  Server:nginx/1.2.0
+2320 DEBUG [2013-07-04 16:33:02]  Date:Thu, 04 Jul 2013 08:33:56 GMT
+2320 DEBUG [2013-07-04 16:33:02]  Content-Type:application/json;charset=UTF-8
+2321 DEBUG [2013-07-04 16:33:02]  Content-Length:129
+2321 DEBUG [2013-07-04 16:33:02]  Connection:keep-alive
+2321 DEBUG [2013-07-04 16:33:02]  Api-Server-IP:10.77.108.38
+2321 DEBUG [2013-07-04 16:33:02]  Vary:Accept-Encoding
+2321 DEBUG [2013-07-04 16:33:02]  X-Varnish:1042825154
+2321 DEBUG [2013-07-04 16:33:02]  Age:0
+2321 DEBUG [2013-07-04 16:33:02]  Via:1.1 varnish
+2321 DEBUG [2013-07-04 16:33:02]  SINA-LB:cWgxMzIuaGEucWgyLmJqLmxvYWRiYWxhbmNlLnNpbg==
+2322 DEBUG [2013-07-04 16:33:02]  {"error":"request uid's value must be the current user","error_code":21335,"request":"/2/friendships/friends/bilateral/ids.json"}
+
+2322 DEBUG [2013-07-04 16:33:02]  Request:
+2322 DEBUG [2013-07-04 16:33:02]  GET:https://api.weibo.com/2/friendships/friends.json
+2323 DEBUG [2013-07-04 16:33:02]  Authorization: OAuth2 2.008w7_4DN7usfCb590e9250eeEUviB
+2323 DEBUG [2013-07-04 16:33:02]  API-RemoteIP: 10.10.255.62
+2355 DEBUG [2013-07-04 16:33:02]  Response:
+2355 DEBUG [2013-07-04 16:33:02]  https StatusCode:200
+2355 DEBUG [2013-07-04 16:33:02]  Server:nginx/1.2.0
+2355 DEBUG [2013-07-04 16:33:02]  Date:Thu, 04 Jul 2013 08:33:56 GMT
+2355 DEBUG [2013-07-04 16:33:02]  Content-Type:application/json;charset=UTF-8
+2356 DEBUG [2013-07-04 16:33:02]  Content-Length:115
+2356 DEBUG [2013-07-04 16:33:02]  Connection:keep-alive
+2356 DEBUG [2013-07-04 16:33:02]  Api-Server-IP:10.77.108.37
+2356 DEBUG [2013-07-04 16:33:02]  Vary:Accept-Encoding
+2356 DEBUG [2013-07-04 16:33:02]  X-Varnish:1009953401
+2356 DEBUG [2013-07-04 16:33:02]  Age:0
+2356 DEBUG [2013-07-04 16:33:02]  Via:1.1 varnish
+2356 DEBUG [2013-07-04 16:33:02]  SINA-LB:cWgxMzIuaGEucWgyLmJqLmxvYWRiYWxhbmNlLnNpbg==
+2357 DEBUG [2013-07-04 16:33:02]  {"error":"request uid's value must be the current user","error_code":21335,"request":"/2/friendships/friends.json"}
+
+0    DEBUG [2013-07-04 16:33:37]  Request:
+1    DEBUG [2013-07-04 16:33:37]  GET:https://api.weibo.com/2/users/show.json
+102  DEBUG [2013-07-04 16:33:37]  Authorization: OAuth2 2.008w7_4DN7usfCb590e9250eeEUviB
+102  DEBUG [2013-07-04 16:33:37]  API-RemoteIP: 10.10.255.62
+740  DEBUG [2013-07-04 16:33:37]  Response:
+740  DEBUG [2013-07-04 16:33:37]  https StatusCode:200
+740  DEBUG [2013-07-04 16:33:37]  Server:nginx/1.2.0
+740  DEBUG [2013-07-04 16:33:37]  Date:Thu, 04 Jul 2013 08:34:33 GMT
+740  DEBUG [2013-07-04 16:33:37]  Content-Type:application/json;charset=UTF-8
+741  DEBUG [2013-07-04 16:33:37]  Content-Length:1392
+741  DEBUG [2013-07-04 16:33:37]  Connection:keep-alive
+741  DEBUG [2013-07-04 16:33:37]  Api-Server-IP:10.77.108.41
+741  DEBUG [2013-07-04 16:33:37]  Vary:Accept-Encoding
+741  DEBUG [2013-07-04 16:33:37]  X-Varnish:319336290
+741  DEBUG [2013-07-04 16:33:37]  Age:0
+741  DEBUG [2013-07-04 16:33:37]  Via:1.1 varnish
+741  DEBUG [2013-07-04 16:33:37]  SINA-LB:cWgxMzIuaGEucWgyLmJqLmxvYWRiYWxhbmNlLnNpbg==
+747  DEBUG [2013-07-04 16:33:37]  {"id":1796533527,"idstr":"1796533527","class":1,"screen_name":"胡新辰点点点","name":"胡新辰点点点","province":"23","city":"1","location":"黑龙江 哈尔滨","description":"","url":"","profile_image_url":"http://tp4.sinaimg.cn/1796533527/50/22837500912/1","profile_url":"u/1796533527","domain":"","weihao":"","gender":"m","followers_count":69,"friends_count":153,"statuses_count":177,"favourites_count":78,"created_at":"Mon Aug 16 21:36:14 +0800 2010","following":false,"allow_all_act_msg":false,"geo_enabled":false,"verified":false,"verified_type":-1,"remark":"","status":{"created_at":"Sat Jun 29 23:35:12 +0800 2013","id":3594672251588246,"mid":"3594672251588246","idstr":"3594672251588246","text":"相当刺激的反恐剧，堪比24小时，就是缩写有点雷。。。SB3。。。。","source":"<a href=\"http://app.weibo.com/t/feed/3rcs3o\" rel=\"nofollow\">WeicoPro.HD</a>","favorited":false,"truncated":false,"in_reply_to_status_id":"","in_reply_to_user_id":"","in_reply_to_screen_name":"","pic_urls":[],"geo":null,"reposts_count":0,"comments_count":0,"attitudes_count":0,"mlevel":0,"visible":{"type":0,"list_id":0}},"allow_all_comment":false,"avatar_large":"http://tp4.sinaimg.cn/1796533527/180/22837500912/1","avatar_hd":"","verified_reason":"","follow_me":false,"online_status":0,"bi_followers_count":27,"lang":"zh-cn","star":0,"mbtype":0,"mbrank":0,"block_word":0}
+
+755  DEBUG [2013-07-04 16:33:37]  Request:
+755  DEBUG [2013-07-04 16:33:37]  GET:https://api.weibo.com/2/friendships/friends/bilateral/ids.json
+756  DEBUG [2013-07-04 16:33:37]  Authorization: OAuth2 2.008w7_4DN7usfCb590e9250eeEUviB
+756  DEBUG [2013-07-04 16:33:37]  API-RemoteIP: 10.10.255.62
+821  DEBUG [2013-07-04 16:33:37]  Response:
+821  DEBUG [2013-07-04 16:33:37]  https StatusCode:200
+821  DEBUG [2013-07-04 16:33:37]  Server:nginx/1.2.0
+821  DEBUG [2013-07-04 16:33:37]  Date:Thu, 04 Jul 2013 08:34:33 GMT
+822  DEBUG [2013-07-04 16:33:37]  Content-Type:application/json;charset=UTF-8
+822  DEBUG [2013-07-04 16:33:37]  Content-Length:129
+822  DEBUG [2013-07-04 16:33:37]  Connection:keep-alive
+822  DEBUG [2013-07-04 16:33:37]  Api-Server-IP:10.77.108.55
+822  DEBUG [2013-07-04 16:33:37]  Vary:Accept-Encoding
+822  DEBUG [2013-07-04 16:33:37]  X-Varnish:319336551
+822  DEBUG [2013-07-04 16:33:37]  Age:0
+822  DEBUG [2013-07-04 16:33:37]  Via:1.1 varnish
+823  DEBUG [2013-07-04 16:33:37]  SINA-LB:cWgxMzIuaGEucWgyLmJqLmxvYWRiYWxhbmNlLnNpbg==
+823  DEBUG [2013-07-04 16:33:37]  {"error":"request uid's value must be the current user","error_code":21335,"request":"/2/friendships/friends/bilateral/ids.json"}
+
+823  DEBUG [2013-07-04 16:33:37]  Request:
+823  DEBUG [2013-07-04 16:33:37]  GET:https://api.weibo.com/2/friendships/friends.json
+825  DEBUG [2013-07-04 16:33:37]  Authorization: OAuth2 2.008w7_4DN7usfCb590e9250eeEUviB
+825  DEBUG [2013-07-04 16:33:37]  API-RemoteIP: 10.10.255.62
+855  DEBUG [2013-07-04 16:33:38]  Response:
+855  DEBUG [2013-07-04 16:33:38]  https StatusCode:200
+855  DEBUG [2013-07-04 16:33:38]  Server:nginx/1.2.0
+856  DEBUG [2013-07-04 16:33:38]  Date:Thu, 04 Jul 2013 08:34:33 GMT
+856  DEBUG [2013-07-04 16:33:38]  Content-Type:application/json;charset=UTF-8
+856  DEBUG [2013-07-04 16:33:38]  Content-Length:115
+856  DEBUG [2013-07-04 16:33:38]  Connection:keep-alive
+856  DEBUG [2013-07-04 16:33:38]  Api-Server-IP:10.77.108.43
+856  DEBUG [2013-07-04 16:33:38]  Vary:Accept-Encoding
+856  DEBUG [2013-07-04 16:33:38]  X-Varnish:627899805
+856  DEBUG [2013-07-04 16:33:38]  Age:0
+857  DEBUG [2013-07-04 16:33:38]  Via:1.1 varnish
+857  DEBUG [2013-07-04 16:33:38]  SINA-LB:cWgxMzIuaGEucWgyLmJqLmxvYWRiYWxhbmNlLnNpbg==
+857  DEBUG [2013-07-04 16:33:38]  {"error":"request uid's value must be the current user","error_code":21335,"request":"/2/friendships/friends.json"}
+
+0    DEBUG [2013-07-04 16:33:44]  Request:
+1    DEBUG [2013-07-04 16:33:44]  GET:https://api.weibo.com/2/users/show.json
+66   DEBUG [2013-07-04 16:33:45]  Authorization: OAuth2 2.008w7_4DN7usfCb590e9250eeEUviB
+66   DEBUG [2013-07-04 16:33:45]  API-RemoteIP: 10.10.255.62
+715  DEBUG [2013-07-04 16:33:45]  Response:
+715  DEBUG [2013-07-04 16:33:45]  https StatusCode:200
+715  DEBUG [2013-07-04 16:33:45]  Server:nginx/1.2.0
+715  DEBUG [2013-07-04 16:33:45]  Date:Thu, 04 Jul 2013 08:34:41 GMT
+715  DEBUG [2013-07-04 16:33:45]  Content-Type:application/json;charset=UTF-8
+715  DEBUG [2013-07-04 16:33:45]  Content-Length:1392
+715  DEBUG [2013-07-04 16:33:45]  Connection:keep-alive
+716  DEBUG [2013-07-04 16:33:45]  Api-Server-IP:10.77.108.36
+716  DEBUG [2013-07-04 16:33:45]  Vary:Accept-Encoding
+716  DEBUG [2013-07-04 16:33:45]  X-Varnish:319356623
+716  DEBUG [2013-07-04 16:33:45]  Age:0
+716  DEBUG [2013-07-04 16:33:45]  Via:1.1 varnish
+716  DEBUG [2013-07-04 16:33:45]  SINA-LB:cWgxMzIuaGEucWgyLmJqLmxvYWRiYWxhbmNlLnNpbg==
+722  DEBUG [2013-07-04 16:33:45]  {"id":1796533527,"idstr":"1796533527","class":1,"screen_name":"胡新辰点点点","name":"胡新辰点点点","province":"23","city":"1","location":"黑龙江 哈尔滨","description":"","url":"","profile_image_url":"http://tp4.sinaimg.cn/1796533527/50/22837500912/1","profile_url":"u/1796533527","domain":"","weihao":"","gender":"m","followers_count":69,"friends_count":153,"statuses_count":177,"favourites_count":78,"created_at":"Mon Aug 16 21:36:14 +0800 2010","following":false,"allow_all_act_msg":false,"geo_enabled":false,"verified":false,"verified_type":-1,"remark":"","status":{"created_at":"Sat Jun 29 23:35:12 +0800 2013","id":3594672251588246,"mid":"3594672251588246","idstr":"3594672251588246","text":"相当刺激的反恐剧，堪比24小时，就是缩写有点雷。。。SB3。。。。","source":"<a href=\"http://app.weibo.com/t/feed/3rcs3o\" rel=\"nofollow\">WeicoPro.HD</a>","favorited":false,"truncated":false,"in_reply_to_status_id":"","in_reply_to_user_id":"","in_reply_to_screen_name":"","pic_urls":[],"geo":null,"reposts_count":0,"comments_count":0,"attitudes_count":0,"mlevel":0,"visible":{"type":0,"list_id":0}},"allow_all_comment":false,"avatar_large":"http://tp4.sinaimg.cn/1796533527/180/22837500912/1","avatar_hd":"","verified_reason":"","follow_me":false,"online_status":0,"bi_followers_count":27,"lang":"zh-cn","star":0,"mbtype":0,"mbrank":0,"block_word":0}
+
+730  DEBUG [2013-07-04 16:33:45]  Request:
+730  DEBUG [2013-07-04 16:33:45]  GET:https://api.weibo.com/2/friendships/friends/bilateral/ids.json
+733  DEBUG [2013-07-04 16:33:45]  Authorization: OAuth2 2.008w7_4DN7usfCb590e9250eeEUviB
+733  DEBUG [2013-07-04 16:33:45]  API-RemoteIP: 10.10.255.62
+794  DEBUG [2013-07-04 16:33:45]  Response:
+794  DEBUG [2013-07-04 16:33:45]  https StatusCode:200
+794  DEBUG [2013-07-04 16:33:45]  Server:nginx/1.2.0
+794  DEBUG [2013-07-04 16:33:45]  Date:Thu, 04 Jul 2013 08:34:41 GMT
+794  DEBUG [2013-07-04 16:33:45]  Content-Type:application/json;charset=UTF-8
+795  DEBUG [2013-07-04 16:33:45]  Content-Length:129
+795  DEBUG [2013-07-04 16:33:45]  Connection:keep-alive
+795  DEBUG [2013-07-04 16:33:45]  Api-Server-IP:10.77.108.48
+795  DEBUG [2013-07-04 16:33:45]  Vary:Accept-Encoding
+795  DEBUG [2013-07-04 16:33:45]  X-Varnish:1010065747
+795  DEBUG [2013-07-04 16:33:45]  Age:0
+795  DEBUG [2013-07-04 16:33:45]  Via:1.1 varnish
+795  DEBUG [2013-07-04 16:33:45]  SINA-LB:cWgxMzIuaGEucWgyLmJqLmxvYWRiYWxhbmNlLnNpbg==
+796  DEBUG [2013-07-04 16:33:45]  {"error":"request uid's value must be the current user","error_code":21335,"request":"/2/friendships/friends/bilateral/ids.json"}
+
+796  DEBUG [2013-07-04 16:33:45]  Request:
+796  DEBUG [2013-07-04 16:33:45]  GET:https://api.weibo.com/2/friendships/friends.json
+797  DEBUG [2013-07-04 16:33:45]  Authorization: OAuth2 2.008w7_4DN7usfCb590e9250eeEUviB
+798  DEBUG [2013-07-04 16:33:45]  API-RemoteIP: 10.10.255.62
+811  DEBUG [2013-07-04 16:33:45]  Response:
+811  DEBUG [2013-07-04 16:33:45]  https StatusCode:200
+811  DEBUG [2013-07-04 16:33:45]  Server:nginx/1.2.0
+811  DEBUG [2013-07-04 16:33:45]  Date:Thu, 04 Jul 2013 08:34:41 GMT
+811  DEBUG [2013-07-04 16:33:45]  Content-Type:application/json;charset=UTF-8
+811  DEBUG [2013-07-04 16:33:45]  Content-Length:115
+811  DEBUG [2013-07-04 16:33:45]  Connection:keep-alive
+812  DEBUG [2013-07-04 16:33:45]  Api-Server-IP:10.77.108.51
+812  DEBUG [2013-07-04 16:33:45]  Vary:Accept-Encoding
+812  DEBUG [2013-07-04 16:33:45]  X-Varnish:1042936580
+812  DEBUG [2013-07-04 16:33:45]  Age:0
+812  DEBUG [2013-07-04 16:33:45]  Via:1.1 varnish
+812  DEBUG [2013-07-04 16:33:45]  SINA-LB:cWgxMzIuaGEucWgyLmJqLmxvYWRiYWxhbmNlLnNpbg==
+812  DEBUG [2013-07-04 16:33:45]  {"error":"request uid's value must be the current user","error_code":21335,"request":"/2/friendships/friends.json"}
+
+0    DEBUG [2013-07-04 16:49:17]  Request:
+1    DEBUG [2013-07-04 16:49:17]  GET:https://api.weibo.com/2/users/show.json

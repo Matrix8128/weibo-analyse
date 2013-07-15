@@ -99,7 +99,7 @@ public class SingleUserAnalyse {
 	// 用户最新发布微博列表id
 	JSONObject userTimelineIds = null;
 	// 用户发布的微博列表
-	int needStatusNum = 300;// 需要获得微博数量
+	int needStatusNum = 200;// 需要获得微博数量
 	StatusWapper status = null;
 	// 按评论数量排序（降序）的微博列表
 	PriorityQueue<Status> comQueue = null;
@@ -248,7 +248,8 @@ public class SingleUserAnalyse {
 			userId = centreUser.getId();
 			friendsJson.put("head", centreUser.getProfileImageURL());
 			// get all biFriend ids
-			ArrayList biIds = fm.myGetFriendsBilateralIds(centreUser.getId());
+			String id=centreUser.getId();
+			ArrayList biIds = fm.myGetFriendsBilateralIds(id);
 			// the while loop intends to get all friend ids and get them tagged
 			// with bi or uni
 
@@ -484,8 +485,13 @@ public class SingleUserAnalyse {
 		}
 		comUsers.put("comUserNum", comUserNum);
 		comUsers.put("comUsers", comUserArray);
-
-		// 去掉中心用户
+/*		// ========================get result======================
+		PrintWriter Pout = new PrintWriter(new FileWriter(
+				"C:\\Users\\Edward\\Desktop\\result\\comUsers"));
+		Pout.println(this.comUsers);
+		Pout.close();
+		// ========================get result======================
+*/		// 去掉中心用户
 		replyMap.remove(centreUser.getId());
 		// 得到中心用户回复的评论者
 		SortedUserQueue.clear();// 先清空
@@ -507,7 +513,13 @@ public class SingleUserAnalyse {
 		}
 		repliedUsers.put("repliedUserNum", repliedUserNum);
 		repliedUsers.put("repliedUsers", repliedUserArray);
-
+/*		// ========================get result======================
+		PrintWriter Pout2 = new PrintWriter(new FileWriter(
+				"C:\\Users\\Edward\\Desktop\\result\\repliedUsers"));
+		Pout2.println(this.repliedUsers);
+		Pout2.close();
+		// ========================get result======================
+*/
 	}
 
 	// 看topRtStatusNum,是几就取多少条微博的转发信息，就消耗几次api
@@ -591,7 +603,13 @@ public class SingleUserAnalyse {
 			}
 			rtUsers.put("rtUserNum", rtUserNum);
 			rtUsers.put("rtUsers", rtUserArray);
-		} catch (WeiboException e) {
+/*			// ========================get result======================
+			PrintWriter Pout = new PrintWriter(new FileWriter(
+					"C:\\Users\\Edward\\Desktop\\result\\rtUsers"));
+			Pout.println(this.rtUsers);
+			Pout.close();
+			// ========================get result======================
+*/		} catch (WeiboException e) {
 			int errorCode = e.getErrorCode();
 			if (errorCode == 10023) {// user limit
 				this.getAccessToken.ResetToken(this.tokenURL);
@@ -728,7 +746,13 @@ public class SingleUserAnalyse {
 			}
 			rtAuthors.put("rtedAuthorNum", rtedAuthorNum);
 			rtAuthors.put("rtAuthorArray", rtAuthorArray);
-		} catch (WeiboException e) {
+/*			// ========================get result======================
+			PrintWriter Pout = new PrintWriter(new FileWriter(
+					"C:\\Users\\Edward\\Desktop\\result\\rtAuthor"));
+			Pout.println(this.rtAuthors);
+			Pout.close();
+			// ========================get result======================
+*/		} catch (WeiboException e) {
 			int errorCode = e.getErrorCode();
 			if (errorCode == 10023) {// user limit
 				this.getAccessToken.ResetToken(this.tokenURL);
@@ -758,15 +782,23 @@ public class SingleUserAnalyse {
 	double repliedRatio = 0.25;
 	double rtedRatio = 0.3;
 
-	private int getIntimateScore(UserCount uc) {
+	private int getIntimateScore(UserCount uc) throws IOException {
 
+		
 		double score = uc.rtCount * rtRatio / totalRtCount
 				+ (uc.comCount + uc.comedStatus * newStatusWeight) * comRatio
 				/ totalComCount + uc.repliedCount * repliedRatio
 				/ totalRepliedCount + uc.rtedCount * rtedRatio
 				/ totalRtAuthorCount;
 		int result = (int) (score * 1000);
-		return result;
+		
+		/*// ========================get result======================
+		PrintWriter Pout = new PrintWriter(new FileWriter(
+				"C:\\Users\\Edward\\Desktop\\result\\finalResult"),true);
+		Pout.println(uc.toString()+"\nscore"+result);
+		Pout.close();
+		// ========================get result======================
+*/		return result;
 
 	}
 
@@ -784,14 +816,14 @@ public class SingleUserAnalyse {
 			if (this.rtAuthorList == null) {
 				this.getRtAuthors();
 			}
-			ArrayList<UserCount> all = new ArrayList<UserCount>();
+			
 			if (this.rtUserList == null) {
 				this.getRtUser();
 			}
 			if (this.comUserList == null || this.repliedUserList == null) {
 				this.getComAndReplyUser();
 			}
-
+			ArrayList<UserCount> all = new ArrayList<UserCount>();
 			all.addAll(this.rtUserList);
 			all.addAll(this.comUserList);
 			all.addAll(this.rtAuthorList);
@@ -886,6 +918,12 @@ public class SingleUserAnalyse {
 			intimateUsers.put("totalRepliedCount", totalRepliedCount);
 			intimateUsers.put("totalRtAuthorCount", totalRtAuthorCount);
 			intimateUsers.put("users", intiUsers);
+			// ========================get result======================
+			PrintWriter Pout = new PrintWriter(new FileWriter(
+					"C:\\Users\\Edward\\Desktop\\result\\intimateUsers"));
+			Pout.println(this.intimateUsers);
+			Pout.close();
+			// ========================get result======================
 		} catch (WeiboException e) {
 			int errorCode = e.getErrorCode();
 			if (errorCode == 10023) {// user limit
@@ -1157,7 +1195,7 @@ public class SingleUserAnalyse {
 
 			indexData = this.weightAdjust(indexData);
 		} catch (WeiboException e) {
-			
+
 			int errorCode = e.getErrorCode();
 			if (errorCode == 10023) {// user limit
 				this.getAccessToken.ResetToken(this.tokenURL);
@@ -1272,10 +1310,12 @@ public class SingleUserAnalyse {
 
 			// PrintWriter Pout = new PrintWriter(new FileWriter(
 			// "C:\\Users\\Edward\\Desktop\\test.txt"));
-			SingleUserAnalyse ts = new SingleUserAnalyse("1796533527",
-					"胡新辰点点点", "usr.txt");
-			// ts.getCentreUser();// API一次 ts.getFriends();//API 1+好友数/count 次
+			SingleUserAnalyse ts = new SingleUserAnalyse(
+					"胡新辰点点点", "D:\\MyEclipse\\MyEclipse 10\\Workspaces\\weibo-analyse\\usr.txt");
 			System.out.println(ts.getFriends());
+			//System.out.println(ts.getIntimateUsers());
+			// ts.getCentreUser();// API一次 ts.getFriends();//API 1+好友数/count 次
+		//	System.out.println(ts.getFriends());
 			// ts.getStatus(200);// API貌似一次100条，所以num/100
 			// ts.getComAndReplyUser();// 看topComStatusNum,是几就取多少条微博的评论信息
 			// ，就消耗几次api

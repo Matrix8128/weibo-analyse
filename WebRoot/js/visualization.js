@@ -5,6 +5,7 @@
 //
 
 (function(){
+
 Visualization = function(info,workplace, canvasId) {
 	
 	var canvas = $(canvasId).get(0)
@@ -111,23 +112,25 @@ Visualization = function(info,workplace, canvasId) {
 			maxScore=data.users[0].score
 			var step=1.15
 			var begin=1
-			var newArray=[]
+			 newArray=[]
 			var totalLevel=50
 			for(i=0;begin<50;i++){
 				begin*=step
 				newArray.push(begin)
 			}
-			
+			origin=[]
+			processed=[]
 			$.each(data.users,function(index,user){
 				if(index>showNum)return
 				distance=(1/user.score)*maxScore	
-
+				origin.push(user.name+":"+distance)
 				for(i=0;i<newArray.length;i++){
 					if(distance<newArray[i]||i==newArray.length-1){
 						distance=i+1
 						break
 					}
 				}
+				processed.push(user.name+":"+distance)
 				//user mass can't be too small, or they will stick together in the begining
 				nodesData[user.id]={mass:5,color:"green",type:"intimacy",dataType:data.dataType,screenName:user.name,
 									friendType:user.friendType,score:user.score,
